@@ -28,7 +28,7 @@ BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
 
 
 INCS = -I. -I$(HOME)/TomTom/ttlinux/include
-DIR=TTconsole-1.07
+DIR=TTconsole-1.08
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)

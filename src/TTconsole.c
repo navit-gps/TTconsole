@@ -202,7 +202,7 @@ int main(int argc, char** argv) {
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.07        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.08        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);
@@ -398,6 +398,8 @@ int main(int argc, char** argv) {
 		    else if(c==',') c=';';
 		    else if(c=='.') c=':';
 		    else if(c=='-') c='_';
+		    else if(c=='[') c='{';
+		    else if(c==']') c='}';
 		    else c=toupper(c);
 		  }
 		  if(objects[BUT_CAPS].ob_state&SELECTED) {
@@ -430,59 +432,77 @@ int main(int argc, char** argv) {
                 else objc_draw(objects,0,-1,0,0);       		
               }	  
 	    }
-          } else if (pen) {
-            int c,l;
-	    static int click=-1;
-	    
-	    c=x/CharWidth;
-	    l=y/CharHeight;
-	    if(click!=clickcount) {
-            Fb_BlitText(0,0,RED,BLACK,"TTconsole: CLICK ");
-	      if(areadefined) {
-	      /* alte copyarea loeschen */
-	        int j;
-	        for(j=copyareastart;j<=copyareaend;j++) {
-	          Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
-                }
-	        areadefined=0;
-              }
-	      copyareastart=c+l*(ScreenWidth/CharWidth);
-	      sprintf(buffer,"Areastart=%d.  ",copyareastart);
-	      Fb_BlitText(0,20,RED,BLACK,buffer);
-              click=clickcount;
-	    } else {
-	      if(areadefined) {
-	      /* alte copyarea loeschen */
-	        int j;
-	        for(j=copyareastart;j<=copyareaend;j++) {
-	          Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
-                }
-	        areadefined=0;
-              }
-	      copyareaend=max(copyareastart+1,c+l*(ScreenWidth/CharWidth));
-	      sprintf(buffer,"Areaend=%d.  ",copyareaend);
-	      Fb_BlitText(0,30,RED,BLACK,buffer);
-              /* area invertieren */
-	      int j;
-	      for(j=copyareastart;j<=copyareaend;j++) {
-	        Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
-              }
-              areadefined=1;
-	    }
           } else {
-	    /* losgelassen, also in cutbuffer kopieren */
-            if(areadefined) {
-	      int i=0,j;
-	      for(j=copyareastart;j<=copyareaend;j++) {
-                if(textscreen[j].c) cutbuffer[i++]=textscreen[j].c;
-		else {
-		  cutbuffer[i]=13;
-		  if(i && cutbuffer[i-1]!=13) i++;
-		}
+	    if(attributes&AT_MOUSE) {
+	      char buffer[32];
+	      static int click=-1;
+              if(click!=clickcount) {
+                if(pen) Fb_BlitText(0,0,RED,BLACK,"TTconsole: CLICK ");
+                else Fb_BlitText(0,0,RED,BLACK,"TTconsole: RELEASE ");
+		sprintf(buffer,"\033[%d;%d;%dM",x,y,(pen!=0));
+		write(terminal_fd,buffer,strlen(buffer));
+                click=clickcount;
+	      } else {
+                Fb_BlitText(0,10,RED,BLACK,"TTconsole: rush... ");
+	        sprintf(buffer,"\033[%d;%d;%do",x,y,(pen!=0));
+		write(terminal_fd,buffer,strlen(buffer));
 	      }
-              cutbuffer[i]=0;
-	      sprintf(buffer,"%d bytes in cutbuffer.",i);
-	      Fb_BlitText(0,20,RED,BLACK,buffer);
+	    } else {
+	      if (pen) {
+                int c,l;
+	        static int click=-1;
+	    
+	        c=x/CharWidth;
+	        l=y/CharHeight;
+	        if(click!=clickcount) {
+                  Fb_BlitText(0,0,RED,BLACK,"TTconsole: CLICK ");
+	          if(areadefined) {
+	            /* alte copyarea loeschen */
+	            int j;
+	            for(j=copyareastart;j<=copyareaend;j++) {
+	              Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+                    }
+	            areadefined=0;
+                  }
+	          copyareastart=c+l*(ScreenWidth/CharWidth);
+	          sprintf(buffer,"Areastart=%d.  ",copyareastart);
+	          Fb_BlitText(0,20,RED,BLACK,buffer);
+                  click=clickcount;
+	        } else {
+	          if(areadefined) {
+	            /* alte copyarea loeschen */
+	            int j;
+	            for(j=copyareastart;j<=copyareaend;j++) {
+	              Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+                    }
+	            areadefined=0;
+                  }
+	          copyareaend=max(copyareastart+1,c+l*(ScreenWidth/CharWidth));
+	          sprintf(buffer,"Areaend=%d.  ",copyareaend);
+	          Fb_BlitText(0,30,RED,BLACK,buffer);
+                  /* area invertieren */
+	          int j;
+	          for(j=copyareastart;j<=copyareaend;j++) {
+	            Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+                  }
+                  areadefined=1;
+	        }
+              } else {
+	        /* losgelassen, also in cutbuffer kopieren */
+                if(areadefined) {
+	          int i=0,j;
+	          for(j=copyareastart;j<=copyareaend;j++) {
+                    if(textscreen[j].c) cutbuffer[i++]=textscreen[j].c;
+		    else {
+		      cutbuffer[i]=13;
+		      if(i && cutbuffer[i-1]!=13) i++;
+		    }
+	          }
+                  cutbuffer[i]=0;
+	          sprintf(buffer,"%d bytes in cutbuffer.",i);
+	          Fb_BlitText(0,20,RED,BLACK,buffer);
+	        }
+	      }
 	    }
 	  }
 	  if(prev_pen!=pen && !pen) clickcount++;

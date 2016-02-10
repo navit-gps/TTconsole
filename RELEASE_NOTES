@@ -37,5 +37,5 @@ Release notes for Version 1.07 (Jan 2008)
 - Changed the way arguments are passed to the shell.
 - When the shell exits, now also TTconsole exits properly.
 - new option --noclear and --login <binary>
-- improved terminal emulation
+- improved terminal emulation, bug fixed
 

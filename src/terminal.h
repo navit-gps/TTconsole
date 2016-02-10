@@ -30,7 +30,8 @@ typedef struct {
 
 #define AT_LINEWRAP  (1<<7)
 #define AT_KEYREPEAT (1<<8)
-#define AT_AUTOLF   (1<<20)
+#define AT_MOUSE     (1<<10)
+#define AT_AUTOLF    (1<<20)
 #define AT_CURSORON   (1<<25)
 
 #define AT_DEFAULT (AT_LINEWRAP|AT_CURSORON)
@@ -39,3 +40,4 @@ typedef struct {
 extern CINFO textscreen[];
 extern int terminal_fd;
 extern int col,lin;
+extern int attributes;
