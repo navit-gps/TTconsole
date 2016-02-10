@@ -1,0 +1,87 @@
+
+
+
+                        TTconsole
+
+                       VERSION 1.13
+
+            (C) 2007-2008 by Markus Hoffmann
+              (kollo@users.sourceforge.net)
+
+Name        : TTconsole                    
+Version     : 1.00                              Vendor: Markus Hoffmann
+Group       : Embedded/Shell                    License: GPL
+Packager    : Markus Hoffmann <kollo@users.sourceforge.net>
+URL         : http://www.opentom.org/TomTom_Console
+Summary     : A Text console for the TomTom ONE car navigation system
+Description :
+
+The text screen has a size of 64x30 charackters (on the TomTom ONE) if the
+keyboard is invisible and 64x25 if the virtual keyboard is shown on the
+console. Al though you can hide the keyboard you can still use it (if you
+remember where the key are). Also you can cut an paste text regions from the
+screen to the input.
+
+It appears that the builtin shell is busybox. There is no editor (like pico or
+nano) installed (except for vi of course) but you can put the pico excecutable
+on the INTERNAL directory which appears at /mnt/sdcard/.
+
+Excecution of shell scripts works well and I am currently working on an
+arm-linux-version of X11-Basic (textmode only already is available, but the
+graphics commands need to be adapted.) 
+
+ * TTconsole is free software and comes with NO WARRANTY - read the file
+ * COPYING for details
+
+Please read the file INSTALL for compiling instructions.
+
+The Software is not tested on other devices than TomTom ONE V3, 
+but it might work.
+
+
+The framebuffer rendering and Touchscreen routines are based on 
+the Hello World Example which was published (GPL) by TomTom.
+
+Some procedures are taken from the X11Basic package.
+
+
+BUG REPORTS       
+
+If you find a bug in the TTconsole, you should report it. But first, you should
+make sure that it really is a bug, and that it appears in the latest version of
+the TTconsole package that you have.
+
+Once you have determined that a bug actually exists, mail a
+bug report to kollo@users.sourceforge.net. If you have a fix,
+you are welcome to mail that as well! Suggestions may 
+be mailed to the X11-Basic mailing list on 
+www.sourceforge.net/projects/x11-basic  or posted to the bug
+tracking system.
+
+Comments and  bug  reports  concerning  this  manual  page
+should be directed to kollo@users.sourceforge.net.
+
+BUGS
+
+Still some bugs
+
+AUTHOR
+
+Markus Hoffmann <kollo@users.sourceforge.net>
+
+COPYRIGHT
+
+Copyright (C) 1988-2008 Markus Hoffmann <kollo@users.sourceforge.net>
+
+This program is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation;
+either version 2 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more
+details.
+

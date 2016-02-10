@@ -1,0 +1,7 @@
+Version|100|
+AppName|TTconsole|
+AppPath|/mnt/sdcard/TTconsole/|
+AppIconFile|terminal.bmp|
+AppMainTitle|Text Console|
+AppPort|2001|
+COMMAND|CMD|hallo|terminal.bmp|Text Console|

@@ -1,0 +1,11 @@
+do a 
+
+make depend
+make
+make bindist
+
+The result will be 
+TTconsole-1.00-bin.zip 
+which is the binary package. The contents of this zip file can be 
+directly copied to the TomTom.
+

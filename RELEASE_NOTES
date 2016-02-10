@@ -1,0 +1,6 @@
+Release notes for Version 1.02 (Jan 2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- cursor keys now work as expected
+- Tab now works as expected
+- improved the terminal emulation
+- removed unused code from the sources
