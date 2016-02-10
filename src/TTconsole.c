@@ -127,7 +127,7 @@ void intro() {
   set_color(MAGENTA);  box(10,10,ScreenWidth-10,ScreenHeight-10);
   set_color(LIGHTBLUE);box(20,20,ScreenWidth-20,ScreenHeight-20);
 
-  ltext(10,100,15,25,0,0,"(c) Markus Hoffmann 2008");
+ // ltext(10,100,15,25,0,0,"(c) Markus Hoffmann 2008");
   set_color(WHITE);
   set_bcolor(BLACK);
 
@@ -142,9 +142,13 @@ void usage(){
 
 int main(int argc, char** argv) {
   char buffer[100];
-  int x=0, y=0, pen=0;
-  int sel;  
-  int retval;
+  char *cutbuffer;
+  int x=0,y=0,pen=0;
+  int sel,retval;
+  int clickcount=0;
+  int copyareastart;
+  int copyareaend;
+  static areadefined=0;
   struct timeval tv;
 
   char *arg[1];arg[0]="/bin/sh";arg[1]=NULL;
@@ -157,18 +161,19 @@ int main(int argc, char** argv) {
   FbRender_Open();
   gem_init();
 
+  cutbuffer=malloc(AnzLine*(LineLen+1)+1);
+
   while(TsScreen_pen(&x,&y,&pen)) ; /* flush pen input */
-  Fb_Clear(0,5*CharHeight,BLACK);
+  Fb_Clear(0,ScreenHeight,BLACK);   /* clear screen */
 
   intro();    /* Splash Message ausgeben */
 
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  printf("first use of g_out.\n");
-  g_outs("\033[7m      Shell-Access on the TomTom V.1.04        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033[7m      Shell-Access on the TomTom V.1.05        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
-  vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,vinfo.xres/CharWidth,vinfo.yres/CharHeight);
+  vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);
 
   /* Setze information fuer terminals */
@@ -251,33 +256,37 @@ int main(int argc, char** argv) {
     } else {
       if(FD_ISSET(tsfd,&read_fd_set)) {  /*  Touchscreen event...   */
         if(TsScreen_pen(&x,&y,&pen)) {
-        if((sel=objc_find(objects,x,y))!=-1) {
-	  if(pen) {
-	    if((objects[sel].ob_flags&SELECTABLE) && !(objects[sel].ob_state & DISABLED)) { 
-              if(objects[sel].ob_flags & RBUTTON) {
-                int idx=rootob(objects,sel);
-                if(idx>=0) {
-	          int start=objects[idx].ob_head;
-	          int stop=objects[idx].ob_tail;
-	          if(start>=0) {
-		    idx=start;
-		    while(1) {
-		      if(objects[idx].ob_flags & RBUTTON) objects[idx].ob_state=objects[idx].ob_state & (~SELECTED);
-  		      if(idx==stop) break;
-	              idx=objects[idx].ob_next;
- 	 	    }
+          if((sel=objc_find(objects,x,y))!=-1) {
+	    if(pen) {
+	      if((objects[sel].ob_flags&SELECTABLE) && !(objects[sel].ob_state & DISABLED)) { 
+                if(objects[sel].ob_flags & RBUTTON) { /* dann andere unselektieren */
+                  int idx=rootob(objects,sel);
+                  if(idx>=0) {
+	            int start=objects[idx].ob_head;
+	            int stop=objects[idx].ob_tail;
+	            if(start>=0) {
+		      idx=start;
+		      while(1) {
+		        if(objects[idx].ob_flags & RBUTTON) objects[idx].ob_state=objects[idx].ob_state & (~SELECTED);
+  		        if(idx==stop) break;
+	                idx=objects[idx].ob_next;
+ 	 	      }
+	            }
+                  }
+		}
+                static int oc=-1;
+	        if(oc!=clickcount) {
+  	          objects[sel].ob_state^=SELECTED;
+	          objc_draw(objects,sel,sel,0,0);
+		  oc=clickcount;
+	          if(objects[sel].ob_flags & TOUCHEXIT) {
+  	            if(sel==BUT_RETURN) ;
+	            else {char a=*(char *)objects[sel].ob_spec; g_out('*');}
+	            objects[sel].ob_state&=(~SELECTED);
+	            objc_draw(objects,sel,sel,0,0);       
 	          }
-                }  
-              }
-	      objects[sel].ob_state|=SELECTED;
-	      objc_draw(objects,sel,sel,0,0);
-	      if(objects[sel].ob_flags & TOUCHEXIT) {
-  	        if(sel==BUT_RETURN) ;
-	        else {char a=*(char *)objects[sel].ob_spec; g_out('*');}
-	        objects[sel].ob_state&=(~SELECTED);
-	        objc_draw(objects,sel,sel,0,0);       
-	      }
-	    } /*else {sprintf(buffer,"Touched object #%d\n",sel);g_outs(buffer);}*/
+	        }
+	      } /*else {sprintf(buffer,"Touched object #%d\n",sel);g_outs(buffer);}*/
 	    } else {
 	      if(objects[sel].ob_flags & EXIT) {
   	        if(sel==BUT_RETURN)         {c=13;write(terminal_fd,&c,1);}
@@ -294,12 +303,13 @@ int main(int argc, char** argv) {
 	        else if(sel==BUT_TAB)       {c=9;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_ESC)       {c=27;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_BLANK)     {c=32;write(terminal_fd,&c,1);}
+	        else if(sel==BUT_PASTE)     {write(terminal_fd,cutbuffer,strlen(cutbuffer));}
 	        else if(sel==BUT_QUIT) DoExit=1;
 	        else if(sel==BUT_CLEAR) {g_out(27);g_outs("[2J");g_out(27);g_outs("[m");g_out(27);g_outs("[H");}
 	        else if(sel==BUT_HIDE) {
-		  cursor_onoff(0,col*CharWidth,lin*CharWidth);
+		  cursor_onoff(0,col*CharWidth,lin*CharHeight);
                   textscreen_redraw(0,0,ScreenWidth/CharWidth,11);      
-		  cursor_onoff(1,col*CharWidth,lin*CharWidth);
+		  cursor_onoff(1,col*CharWidth,lin*CharHeight);
 		  hideit=1;
 		}
 	        else {
@@ -326,7 +336,10 @@ int main(int argc, char** argv) {
 		    else if(c=='.') c=':';
 		    else if(c=='-') c='_';
 		    else c=toupper(c);
-		  }   
+		  }
+		  if(objects[BUT_CAPS].ob_state&SELECTED) {
+		    c=toupper(c);
+		  }  
 		  if(objects[BUT_CTRL1].ob_state&SELECTED||objects[BUT_CTRL2].ob_state&SELECTED) {
 		      objects[BUT_CTRL1].ob_state&=(~SELECTED);
 		      objects[BUT_CTRL2].ob_state&=(~SELECTED);
@@ -345,21 +358,63 @@ int main(int argc, char** argv) {
                 else objc_draw(objects,0,-1,0,0);       		
               }	  
 	    }
-          } else if (pen && x>ScreenWidth/2) {
-            PutLinePoint(x, y, MAGENTA, 3);  
           } else if (pen) {
             int c,l;
-	    char a;
+	    static int click=-1;
+	    
 	    c=x/CharWidth;
 	    l=y/CharHeight;
-	    Fb_inverse(c*CharWidth,l*CharHeight,CharWidth,CharHeight);
-	    a=textscreen[c][l].c;
-	    if(a) {
-	      g_out(a);
-	      write(terminal_fd,&a,1);
-	    }  
-          }
-          prev_pen = pen;
+	    if(click!=clickcount) {
+            Fb_BlitText(0,0,RED,BLACK,"TTconsole: Pen pressed! CLICK ");
+	      if(areadefined) {
+	      /* alte copyarea loeschen */
+	        int j;
+	        for(j=copyareastart;j<=copyareaend;j++) {
+	          Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+                }
+	        areadefined=0;
+              }
+	      copyareastart=c+l*(ScreenWidth/CharWidth);
+	      sprintf(buffer,"Areastart=%d.  ",copyareastart);
+	      Fb_BlitText(0,20,RED,BLACK,buffer);
+              click=clickcount;
+	    } else {
+	      if(areadefined) {
+	      /* alte copyarea loeschen */
+	        int j;
+	        for(j=copyareastart;j<=copyareaend;j++) {
+	          Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+                }
+	        areadefined=0;
+              }
+	      copyareaend=max(copyareastart+1,c+l*(ScreenWidth/CharWidth));
+	      sprintf(buffer,"Areaend=%d.  ",copyareaend);
+	      Fb_BlitText(0,30,RED,BLACK,buffer);
+              /* area invertieren */
+	      int j;
+	      for(j=copyareastart;j<=copyareaend;j++) {
+	        Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+              }
+              areadefined=1;
+	    }
+          } else {
+	    /* losgelassen, also in cutbuffer kopieren */
+            if(areadefined) {
+	      int i=0,j;
+	      for(j=copyareastart;j<=copyareaend;j++) {
+                if(textscreen[j].c) cutbuffer[i++]=textscreen[j].c;
+		else {
+		  cutbuffer[i]=13;
+		  if(i && cutbuffer[i-1]!=13) i++;
+		}
+	      }
+              cutbuffer[i]=0;
+	      sprintf(buffer,"%d bytes in cutbuffer.",i);
+	      Fb_BlitText(0,20,RED,BLACK,buffer);
+	    }
+	  }
+	  if(prev_pen!=pen && !pen) clickcount++;
+          prev_pen=pen;
         }
       } else if(FD_ISSET(terminal_fd,&read_fd_set)) {
         cc=read(terminal_fd,&c,1);
@@ -367,6 +422,7 @@ int main(int argc, char** argv) {
       } 
     }
   }  
+  free(cutbuffer);
   FbRender_Close();
   TsScreen_Exit();
   return 0;

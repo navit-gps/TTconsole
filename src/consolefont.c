@@ -138,13 +138,14 @@ void Fb_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackC
    }
 #endif
   }
-
+#if 0
   if((flags&2)==2) {/* bold */
     data0|=data1;
     data1|=data2;
     data2|=data3;
     data3|=data4;
   }
+#endif  
   if((flags&0x10)==0x10) {/* underline */
     data0|=0x80;
     data1|=0x80;
@@ -152,8 +153,6 @@ void Fb_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackC
     data3|=0x80;
     data4|=0x80;
   }
-
-
   while (ptr<endp) {
     if (data0 & 1) *ptr++ = aColor; else *ptr++ = aBackColor; data0 >>= 1;    
     if (data1 & 1) *ptr++ = aColor; else *ptr++ = aBackColor; data1 >>= 1;

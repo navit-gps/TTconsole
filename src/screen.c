@@ -258,7 +258,6 @@ void FbRender_inverse(int x, int y,int w,int h){
 }
 
 void Fb_inverse(int x, int y,int w,int h){
-  unsigned char data0,data1,data2,data3,data4;
 
   if(x<0||y<0||w<=0||h<=0|| x+w>ScreenWidth|| y+h>ScreenHeight) return;
 
@@ -271,4 +270,36 @@ void Fb_inverse(int x, int y,int w,int h){
     ptr+=ScreenWidth-w;
   }
 }
+unsigned short int mean_color(unsigned short int a, unsigned short int b) {
+  return(
+  (((((a>>12)&0xf)+((b>>12)&0xf))>>2)<<12)|
+  (((((a>>8)&0xf)+((b>>8)&0xf))>>2)<<8)|
+  (((((a>>4)&0xf)+((b>>4)&0xf))>>2)<<4)|
+  (((a&0xf)+(b&0xf))>>2));
+}
 
+void copyarea(int x,int y,int w, int h, int tx,int ty) {
+  if(x<0||y<0||w<=0||h<=0|| x+w>ScreenWidth|| y+h>ScreenHeight||
+  tx<0||ty<0||tx+w>ScreenWidth|| ty+h>ScreenHeight) return;
+  register unsigned short *ptr1  = (unsigned short*)(fbp+y*Scanline);
+  register unsigned short *ptr2  = (unsigned short*)(fbp+ty*Scanline);
+  ptr1+=x;
+  ptr2+=tx;
+
+  register int i;
+if(y>ty) {
+  for(i=0;i<h;i++) {
+     memmove(ptr2,ptr1,w*sizeof(short));
+     ptr1+=ScreenWidth;
+     ptr2+=ScreenWidth;
+  }
+
+} else {
+  for(i=h-1;i>=0;i--) {
+     memmove(&ptr2[i*ScreenWidth],&ptr1[i*ScreenWidth],w*sizeof(short));
+  }
+}
+
+
+
+}

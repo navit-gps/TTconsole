@@ -12,6 +12,9 @@ void g_outs(char *t);
 void cursor_onoff(int onoff,int x,int y);
 void textscreen_redraw(int x,int y,int w,int h);
 
+#define LineLen (ScreenWidth/CharWidth)
+#define AnzLine (ScreenHeight/CharHeight)
+
 typedef struct {
         unsigned char c;
 	unsigned short color;
@@ -19,7 +22,6 @@ typedef struct {
 	unsigned char flags;
 } CINFO;
 
-extern CINFO textscreen[80][40];
+extern CINFO textscreen[];
 extern int terminal_fd;
 extern int col,lin;
-

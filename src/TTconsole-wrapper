@@ -12,4 +12,6 @@ export HOME=/mnt/sdcard/
 
 # now start the console application
 
-./TTconsole/TTconsole echo $USER
+#./TTconsole/TTconsole "madplay hello.mp3"
+
+./TTconsole/TTconsole 

@@ -7,7 +7,7 @@
  * COPYING for details
  */
  
-#define VERSION "1.04"
+#define VERSION "1.05"
  
  
 #if 0
@@ -92,8 +92,8 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
 /*60*/  {61,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"Alt",   9*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
 /*61*/  {62,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)" ",    13*CharWidth,8*CharHeight,14*CharWidth,2*CharHeight},
 /*62*/  {63,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"AltG", 27*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
-/*63*/  {64,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"   ",  31*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
-/*64*/  {65,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"   ",  35*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
+/*63*/  {64,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"copy",  31*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
+/*64*/  {65,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"past",  35*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
 /*65*/  {66,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"Ctl",  39*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
 /*66*/  {67,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"<",    47*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},
 /*67*/  {68,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"v",    50*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},

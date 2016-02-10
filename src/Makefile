@@ -9,11 +9,11 @@ DATADIR=${prefix}/share
 LIBDIR=${exec_prefix}/lib
 MANDIR=${prefix}/man
 
-all: TTconsole bindist
+all: TTconsole bindist dist
 
 
 CC = arm-linux-gcc
-DEBUG_DEFINES = -O2
+DEBUG_DEFINES = -O3
 STRIP = arm-linux-strip
 
 OBJS= TTconsole.o consolefont.o screen.o ltext.o fdata.o terminal.o graphics.o \
@@ -28,7 +28,7 @@ BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
 
 
 INCS = -I. -I../ttlinux/include
-DIR=TTconsole-1.04
+DIR=TTconsole-1.05
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)
@@ -40,9 +40,9 @@ DEPSRC=$(DISTOBJS:.o=.c)
 
 TTconsole: $(OBJS) Makefile
 	arm-linux-gcc -o $@ $(OBJS) -lm /usr/local/armlinux/3.3.3/arm-linux/lib/libutil.a
-
+	$(STRIP) $@
 clean:
-	rm -f *.o *.a *~ TTconsole 
+	rm -f *.o *.a *~ TTconsole *-bin.zip
 dist :	$(DIR).tar.gz
 
 $(DIR).tar.gz : $(DIST2)

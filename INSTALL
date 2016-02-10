@@ -9,3 +9,10 @@ TTconsole-1.00-bin.zip
 which is the binary package. The contents of this zip file can be 
 directly copied to the TomTom.
 
+===Install the binary package on the TomTom===
+
+Unpack the binary package (zip file) and move the contents to your tomtom
+Directory (e.g. /media/INTERNAL) just as they are. Thats it. It is not
+necessary to rebuild the systems kernel. You do not need opentomlinux! You can
+use the device with navigation software as before. The icon for TTconsole
+should appear in the setting menu.

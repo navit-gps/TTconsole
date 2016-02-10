@@ -29,6 +29,8 @@
 #define BUT_CTRL1 58
 #define BUT_CTRL2 65
 #define BUT_ALTG 62
+#define BUT_COPY 63
+#define BUT_PASTE 64
 #define BUT_CUR_UP 69
 #define BUT_CUR_DOWN 67
 #define BUT_CUR_RIGHT 68
