@@ -101,6 +101,7 @@ int objc_draw( OBJECT *tree,int start, int stop,int rootx,int rooty) {
     }
     if(idx==stop) return(1);
   }
+  return(0);
 }
 
 void  objc_add(OBJECT *tree,int p,int c) {
@@ -162,7 +163,6 @@ int objc_offset(OBJECT *tree,int object,int *x,int *y) {
 /*     objc_find                  */
 
 int objc_find(OBJECT *tree,int x,int y) {
-  int i=0;
   int sbut=-1;
   int idx=0;
   int stop=-1;
@@ -199,7 +199,7 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
   char zeichen,opaque=0;
   int fillcolor=BLACK,pattern=9;
   int textcolor=BLACK,textmode,framecolor=BLACK;
-  int i,drawbg=1,drawtext=1;
+  int i,drawbg=1;
   int obx=tree[idx].ob_x+rootx;
   int oby=tree[idx].ob_y+rooty;
   int obw=tree[idx].ob_width;
@@ -438,6 +438,7 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
     DrawLine(obx,oby,obx+obw,oby+obh);
     DrawLine(obx+obw,oby,obx,oby+obh);
   }
+  return(0);
 }
 
 int finded(OBJECT *tree,int start, int r) {
@@ -468,7 +469,7 @@ int rootob(OBJECT *tree,int onr) {
   }
 }
 
-int relobxy(OBJECT *tree,int ndx,int *x, int *y){
+void relobxy(OBJECT *tree,int ndx,int *x, int *y){
   *x=tree[ndx].ob_x;
   *y=tree[ndx].ob_y;
   while((ndx=rootob(tree,ndx))>=0){

@@ -1,5 +1,5 @@
 
-/* screen.c                                (c) Markus Hoffmann  2007-2008
+/* screen.c                                (c) Markus Hoffmann  2007-2010
 */
 
 /* This file is part of TTconsole, the TomTom Console interface
@@ -73,6 +73,14 @@ void FbRender_Open() {
     exit(4);
   }
   fbbackp = (char*)malloc(screensize);
+  
+  /* Now set the padding to zero, otherwise it can happen that nothing is visible
+    if the pading was set to the second page...*/
+
+  vinfo.xoffset=0;
+  vinfo.yoffset=0;
+  ioctl(fbfd,FBIOPAN_DISPLAY,&vinfo);
+
   printf("Framebuffer device is ready.\n");
 }
 
@@ -260,7 +268,6 @@ void PutLinePoint(int x, int y, unsigned short color, int width) {
 }
 
 void FbRender_inverse(int x, int y,int w,int h){
-  unsigned char data0,data1,data2,data3,data4;
 
   if(x<0||y<0||w<=0||h<=0|| x+w>ScreenWidth|| y+h>ScreenHeight) return;
 
@@ -303,19 +310,15 @@ void copyarea(int x,int y,int w, int h, int tx,int ty) {
   ptr2+=tx;
 
   register int i;
-if(y>ty) {
-  for(i=0;i<h;i++) {
-     memmove(ptr2,ptr1,w*sizeof(short));
-     ptr1+=ScreenWidth;
-     ptr2+=ScreenWidth;
+  if(y>ty) {
+    for(i=0;i<h;i++) {
+      memmove(ptr2,ptr1,w*sizeof(short));
+      ptr1+=ScreenWidth;
+      ptr2+=ScreenWidth;
+    }
+  } else {
+    for(i=h-1;i>=0;i--) {
+      memmove(&ptr2[i*ScreenWidth],&ptr1[i*ScreenWidth],w*sizeof(short));
+    }
   }
-
-} else {
-  for(i=h-1;i>=0;i--) {
-     memmove(&ptr2[i*ScreenWidth],&ptr1[i*ScreenWidth],w*sizeof(short));
-  }
-}
-
-
-
 }

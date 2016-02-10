@@ -9,7 +9,8 @@
  * COPYING for details
  */
 
-
+#include "consolefont.h"
+#include "screen.h"
 
 #define SetFillRule(c)   ;
 #define SetFillStyle(c)  ;
@@ -23,16 +24,7 @@
 #define CopyArea(a,b,c,d,e,f) ;
 #define set_fill(a) ;
 
-void handle_window(int);
-int create_window(char *, char *,unsigned int,unsigned int,unsigned int,unsigned int);
-void open_window( int);
-void close_window(int);
-void do_menu_open(int);
-void do_menu_close();
-void do_menu_edraw();
-void do_menu_draw();
-int form_dial(int fo_diflag, int x1,int y1, int w1, int h1, int x2, int y2,int w2,int h2);
-void graphics();
+
 extern int global_mousex,global_mousey,global_mousek,global_mouses;
 extern int global_keycode,global_ks,global_eventtype;
 extern int menuflags[];
@@ -388,3 +380,19 @@ typedef struct rshdrv3
 
 int form_center(OBJECT *tree, int *x, int *y, int *w, int *h);
 int form_do(OBJECT *tree);
+void handle_window(int);
+int create_window(char *, char *,unsigned int,unsigned int,unsigned int,unsigned int);
+void open_window( int);
+void close_window(int);
+void do_menu_open(int);
+void do_menu_close();
+void do_menu_edraw();
+void do_menu_draw();
+int form_dial(int fo_diflag, int x1,int y1, int w1, int h1, int x2, int y2,int w2,int h2);
+int draw_object(OBJECT *tree,int idx,int rootx,int rooty);
+void graphics();
+void gem_init();
+int rootob(OBJECT *tree,int onr);
+int objc_find(OBJECT *tree,int x,int y);
+int objc_draw( OBJECT *tree,int start, int stop,int rootx,int rooty);
+

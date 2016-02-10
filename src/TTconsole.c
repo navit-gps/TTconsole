@@ -1,5 +1,5 @@
 
-/* TTconsole.c                            (c) Markus Hoffmann  2007-2008
+/* TTconsole.c                            (c) Markus Hoffmann  2007-2010
 */
 
 /* This file is part of TTconsole, the TomTom Console interface
@@ -98,7 +98,7 @@ int spawn (char *argv[]) {
 #endif
     
     
-    printf("Shell-Access on the TomTom\n          (c) Markus Hoffmann   2007-2008\n");
+    printf("Shell-Access on the TomTom\n          (c) Markus Hoffmann   2007-2010\n");
     printf("\nstdin=%d, stdout=%d\n",STDIN_FILENO,STDOUT_FILENO);
     /* This should now already work */
     printf("The child is now going to excecute the shell!\n");
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
   int clickcount=0;
   int copyareastart;
   int copyareaend;
-  static areadefined=0;
+  static int areadefined=0;
   struct timeval tv;
   static char *default_shell="/bin/sh";
   int DoExit=0,doexec=0,noclear=0;
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.10        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.12        \033[m\n           (c) Markus Hoffmann   2007-2010      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);

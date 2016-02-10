@@ -7,8 +7,9 @@
  * COPYING for details
  */
  
-#define VERSION "1.11"
+#define VERSION "1.12"
  
+#include <ctype.h>
  
 #if 0
 char keyb1[]="[^][1][2][3][4][5][6][7][8][9][0][?][?][Bsp] [ ][ ][ ]";

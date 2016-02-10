@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# feed the watchdog. This little utility is part of TTconsole for 
+# TomTom devices. (c) Markus Hoffmann 2010
+# you should use this only for fixing the flicker bug with Navcore versions
+# 8.xxx and 9.xxx and later.
+
+sleep 2
+while pidof TTconsole ; do
+  echo "0" > /dev/watchdog
+  sleep 2
+done

@@ -1,20 +1,27 @@
 # Makefile for TomTomConsole (c) Markus Hoffmann V.1.02
-PATH=/home/hoffmann/bin:/usr/local/bin:/usr/bin:/usr/X11R6/bin:/usr/bin/X11:/usr/local/armlinux/3.3.3/bin:/usr/bin:/bin
+# This is the path for compilation without floating point emulation
+#PATH=/usr/local/bin:/usr/bin:/usr/local/armlinux/3.3.3/bin:/bin
+
+# This is the path to the original TomTom development environment
+PATH=/usr/local/bin:/usr/bin:/usr/local/armlinux/3.3.3/bin:/bin
 
 # Directories
-prefix=/usr/local
+prefix=/usr
 exec_prefix=${prefix}
 
 BINDIR=${exec_prefix}/bin
 DATADIR=${prefix}/share
 LIBDIR=${exec_prefix}/lib
-MANDIR=${prefix}/man
+MANDIR=${prefix}/share/man
+
+
+LIBNO=1.12
 
 all: TTconsole bindist dist
 
 
 CC = arm-linux-gcc
-DEBUG_DEFINES = -O3
+DEBUG_DEFINES = -Wall -O3
 STRIP = arm-linux-strip
 
 OBJS= TTconsole.o consolefont.o screen.o terminal.o graphics.o \
@@ -23,13 +30,13 @@ OBJS= TTconsole.o consolefont.o screen.o terminal.o graphics.o \
 CSRC=$(OBJS:.o=.c)
 HSRC= consolefont.h screen.h terminal.h graphics.h touchscreen.h keyboard.h
 DIST= README INSTALL COPYING AUTHORS RELEASE_NOTES Makefile $(CSRC) $(HSRC) \
-      terminal.bmp TTconsole.cap TTconsole-wrapper
+      terminal.bmp TTconsole.cap TTconsole-wrapper dogfeed
 BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
-         TTconsole-wrapper
+         TTconsole-wrapper dogfeed
 
 
 INCS = -I. -I$(HOME)/TomTom/ttlinux/include
-DIR=TTconsole-1.11
+DIR=TTconsole-$(LIBNO)
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)
@@ -57,12 +64,13 @@ bindist : $(DIR2).zip
 $(DIR2).zip : $(BINDIST)
 	rm -rf /tmp/$(DIR2)
 	mkdir /tmp/$(DIR2)
-	mkdir /tmp/$(DIR2)/TTconsole
+	mkdir /tmp/$(DIR2)/bin
 	mkdir /tmp/$(DIR2)/SDKRegistry
 	rsync -a README /tmp/$(DIR2)/
-	rsync -a RELEASE_NOTES /tmp/$(DIR2)/TTconsole/
-	rsync -a TTconsole /tmp/$(DIR2)/TTconsole/
-	rsync -a TTconsole-wrapper /tmp/$(DIR2)/TTconsole/
+	rsync -a RELEASE_NOTES /tmp/$(DIR2)/
+	rsync -a TTconsole /tmp/$(DIR2)/bin/
+	rsync -a TTconsole-wrapper /tmp/$(DIR2)/bin/
+	rsync -a dogfeed /tmp/$(DIR2)/bin/
 	rsync -a terminal.bmp /tmp/$(DIR2)/SDKRegistry/
 	rsync -a TTconsole.cap /tmp/$(DIR2)/SDKRegistry/
 	(cd /tmp ; zip -r $(DIR2).zip $(DIR2))
@@ -80,13 +88,13 @@ depend : $(DEPSRC)
 
 # DO NOT DELETE
 
-touchscreen.o touchscreen.ln: /usr/include/endian.h /usr/include/bits/endian.h
-touchscreen.o touchscreen.ln: /usr/include/sys/select.h /usr/include/bits/select.h
-touchscreen.o touchscreen.ln: /usr/include/bits/sigset.h /usr/include/bits/time.h
-touchscreen.o touchscreen.ln: /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h
-touchscreen.o touchscreen.ln: /usr/include/alloca.h /usr/include/stdio.h
-touchscreen.o touchscreen.ln: /usr/include/libio.h /usr/include/_G_config.h
-touchscreen.o touchscreen.ln: /usr/include/wchar.h /usr/include/bits/stdio_lim.h
-touchscreen.o touchscreen.ln: /usr/include/bits/sys_errlist.h /usr/include/fcntl.h
-touchscreen.o touchscreen.ln: /usr/include/bits/fcntl.h
-keyboard.o keyboard.ln: consolefont.h graphics.h keyboard.h
+touchscreen.o touchscreen.ln: /usr/include/linux/i2c.h /usr/include/linux/types.h
+touchscreen.o touchscreen.ln: /usr/include/linux/posix_types.h /usr/include/linux/stddef.h
+touchscreen.o touchscreen.ln: /usr/include/asm/posix_types.h
+touchscreen.o touchscreen.ln: /usr/include/asm/posix_types_32.h screen.h terminal.h
+keyboard.o keyboard.ln: /usr/include/ctype.h /usr/include/features.h
+keyboard.o keyboard.ln: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
+keyboard.o keyboard.ln: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h
+keyboard.o keyboard.ln: /usr/include/bits/types.h /usr/include/bits/typesizes.h
+keyboard.o keyboard.ln: /usr/include/endian.h /usr/include/bits/endian.h consolefont.h
+keyboard.o keyboard.ln: graphics.h screen.h keyboard.h

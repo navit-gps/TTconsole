@@ -1,6 +1,6 @@
 Version|100|
 AppName|TTconsole-wrapper|
-AppPath|/mnt/sdcard/TTconsole/|
+AppPath|/mnt/sdcard/bin/|
 AppIconFile|terminal.bmp|
 AppMainTitle|Text Console|
 AppPort|2001|

@@ -8,7 +8,9 @@
  */
  
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdio.h> 
+#include <unistd.h>
+#include <string.h>
 #include <linux/fb.h>
 #include "terminal.h"
 #include "screen.h"
@@ -141,7 +143,6 @@ void g_out(char a) {
   static int cursor_saved_x=0,cursor_saved_y=0,cursor_saved_flags=0;
   static int number=0;
   static int numlock=0;
-  int bbb;
   if(escflag==1) {
     if(a=='c') {   /* Terminal reset */
       escflag=0;

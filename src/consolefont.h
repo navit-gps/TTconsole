@@ -27,3 +27,5 @@ void FbRender_BlitCharacter(int x, int y, unsigned short aColor, unsigned short 
 void FbRender_BlitText(int x, int y, unsigned short aColor, unsigned short aBackColor, char *string);
 void Fb_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackColor, char character,int flags);
 void Fb_BlitText(int x, int y, unsigned short aColor, unsigned short aBackColor, char *string);
+
+void mtext(int x, int y, char *t);

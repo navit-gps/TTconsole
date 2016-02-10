@@ -1,7 +1,21 @@
 #!/bin/sh
 
 # Wrapper script for TTconsole (c) Markus Hoffmann 2008
+#
+# This file is part of TTconsole, the TomTom virtual Console 
+# ======================================================================
+# TTconsole is free software and comes with NO WARRANTY - read the file
+# COPYING for details
+#
 # Change these values if you like
+# You can add some commandline options to TTconsole here
+options=""
+#options="--keyboardlayout_en"
+
+# set this to 'yes' (instead of no) if you want the watchdog feeder be started
+# usually you want this on Systems with Navcore 8.xxx and 9.xxx
+
+dodog=yes
 
 #first do some settings like the PWD, HOME and PATH
 
@@ -11,8 +25,19 @@ export PATH=$PATH:/mnt/sdcard/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/sdcard/lib
 export HOME=/mnt/sdcard/
 
+if [ "$dodog" = "yes" ]
+then
+kill -STOP `pidof ttn`
+dogfeed &
+fi
+
 # now start the console application
 
-#./TTconsole/TTconsole "madplay hello.mp3"
+# TTconsole "madplay hello.mp3"
 
-./TTconsole/TTconsole 
+TTconsole $options
+
+if [ "$dodog" = "yes" ]
+then
+kill -CONT `pidof ttn`
+fi

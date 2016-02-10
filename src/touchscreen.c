@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
 #include <linux/input.h>
 #include <linux/fb.h>
@@ -24,6 +26,7 @@
 #include <barcelona/Barc_ts.h>
 
 #include "screen.h"
+#include "terminal.h"
 
 #define TS_DEVICENAME1 "/dev/ts"
 #define TS_DEVICENAME2 "/dev/input/event0"

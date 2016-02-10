@@ -3,13 +3,13 @@
 
                         TTconsole
 
-                       VERSION 1.11
+                       VERSION 1.12
 
-            (C) 2007-2008 by Markus Hoffmann
+            (C) 2007-2010 by Markus Hoffmann
               (kollo@users.sourceforge.net)
 
 Name        : TTconsole                    
-Version     : 1.11                              Vendor: Markus Hoffmann
+Version     : 1.12                              Vendor: Markus Hoffmann
 Group       : Embedded/Shell                    License: GPL
 Packager    : Markus Hoffmann <kollo@users.sourceforge.net>
 URL         : http://www.opentom.org/TomTom_Console
@@ -33,8 +33,6 @@ graphics commands need to be adapted.)
  * TTconsole is free software and comes with NO WARRANTY - read the file
  * COPYING for details
 
-Please read the file INSTALL for compiling instructions.
-
 The Software is not tested on other devices than TomTom ONE V3, 
 but it might work.
 
@@ -44,6 +42,12 @@ the Hello World Example which was published (GPL) by TomTom.
 
 Some procedures are taken from the X11Basic package.
 
+SOURCE CODE
+===========
+You can download the sourcecode package for TTconsole 
+from http://www.opentom.org/TTconsole .
+
+Please read the file INSTALL for compiling instructions.
 
 BUG REPORTS       
 
@@ -69,9 +73,14 @@ AUTHOR
 
 Markus Hoffmann <kollo@users.sourceforge.net>
 
+ACKNOWLEDGEMENTS
+
+Many thanks to Joghurt for help in adapting the touchscreen routines for
+TomTom firmware 8.03.
+
 COPYRIGHT
 
-Copyright (C) 1988-2009 Markus Hoffmann <kollo@users.sourceforge.net>
+Copyright (C) 1988-2010 Markus Hoffmann <kollo@users.sourceforge.net>
 
 This program is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public

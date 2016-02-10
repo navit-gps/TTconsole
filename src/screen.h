@@ -1,5 +1,5 @@
 
-/* screen.h                            (c) Markus Hoffmann  2007-2008
+/* screen.h                            (c) Markus Hoffmann  2007-2010
 */
 
 /* This file is part of TTconsole, the TomTom Console interface
@@ -35,9 +35,19 @@
 void FbRender_Open();
 void FbRender_Close();
 void FbRender_Flush();
-void FillBox (int x, int y, int w, int h, unsigned short color);
-
 void FbRender_Clear(int,int, unsigned short);
+void Fb_inverse(int x, int y,int w,int h);
+inline void Fb_Scroll(int target_y, int source_y, int height);
+void Fb_Clear(int y, int h, unsigned short color);
+
+void line(int x1,int y1,int x2,int y2);
+void pbox(int x1, int y1, int x2, int y2);
+void box(int x1,int y1,int x2,int y2);
+void FillBox (int x, int y, int w, int h, unsigned short color);
+void set_bcolor(unsigned short color);
+void set_color(unsigned short color);
+void copyarea(int x,int y,int w, int h, int tx,int ty);
+
 extern struct fb_var_screeninfo vinfo;
 extern struct fb_fix_screeninfo finfo;
 extern long int screensize;

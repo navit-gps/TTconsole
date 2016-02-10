@@ -54,3 +54,13 @@ Release notes for Version 1.10 (Sept 2008)
 - new commandline-option --rotatets
 - new commandline-option --keyboardlayout_en
 
+Release notes for Version 1.11 (Dec 2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* no essential changes 
+
+Release notes for Version 1.12 (Feb 2010)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* better support vor Navcore Versions 9.xx
+* Changed directory structure
+* new dogfeed utility
+
