@@ -10,6 +10,7 @@
 void g_out(char a);
 void g_outs(char *t);
 void cursor_onoff(int onoff,int x,int y);
+void textscreen_redraw(int x,int y,int w,int h);
 
 typedef struct {
         unsigned char c;
@@ -20,3 +21,5 @@ typedef struct {
 
 extern CINFO textscreen[80][40];
 extern int terminal_fd;
+extern int col,lin;
+

@@ -28,7 +28,7 @@ BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
 
 
 INCS = -I. -I../ttlinux/include
-DIR=TTconsole-1.03
+DIR=TTconsole-1.04
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)

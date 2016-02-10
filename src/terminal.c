@@ -18,6 +18,10 @@ int terminal_fd=-1;   /* File descriptor for connection to shell */
 
 CINFO textscreen[80][40];
 
+int col=0,lin=0;
+
+
+
 void cursor_onoff(int onoff,int x,int y) {
   static int cursor=0;
   if(cursor!=onoff) Fb_inverse(x,y,CharWidth,CharHeight);
@@ -41,13 +45,26 @@ void textscreen_clear(int line,int num){
     for(j=0;j<ScreenWidth/CharWidth;j++) textscreen[line+i][j].c=0;
   }
 }
+void textscreen_redraw(int x, int y, int w,int h){
+  int i,j;
+  for(i=y;i<y+h;i++) {
+    for(j=x;j<x+w;j++) {
+      if(textscreen[i][j].c) Fb_BlitCharacter(j*CharWidth,i*CharHeight,
+      textscreen[i][j].color,textscreen[i][j].bcolor, 
+      textscreen[i][j].c,textscreen[i][j].flags);
+      else Fb_BlitCharacter(j*CharWidth,i*CharHeight,
+      textscreen[i][j].color,textscreen[i][j].bcolor,' ',0);
+    }
+  }
+}
+
+
 void textscreen_lineclear(int lin,int col,int num){
   int j;
     for(j=col;j<col+num;j++) textscreen[lin][j].c=0;
 }
 /* Terminalroutines, (c) Markus Hoffmann, all rights reserved */
 void g_out(char a) {
-  static int lin=0,col=0;
   static int chw=CharWidth,chh=CharHeight;
   static int escflag=0;
   static int numbers[16];
@@ -143,8 +160,8 @@ void g_out(char a) {
 	else {
 	  int i;
 	  for(i=0;i<=anznumbers;i++) {
-	    if(i==0) lin=numbers[i];
-	    if(i==1) col=numbers[i];
+	    if(i==0) lin=max(0,numbers[i]-1);
+	    if(i==1) col=max(0,numbers[i]-1);
 	  }
 	}
 	cursor_onoff(1,col*chw,lin*chh);
@@ -212,10 +229,10 @@ void g_out(char a) {
     case 127: break; 
     default:
       Fb_BlitCharacter(col*chw,lin*chh,tcolor,tbcolor, a,flags);
-      textscreen[col][lin].c=a;
-      textscreen[col][lin].color=tcolor;
-      textscreen[col][lin].bcolor=tbcolor;
-      textscreen[col][lin].flags=flags;
+      textscreen[lin][col].c=a;
+      textscreen[lin][col].color=tcolor;
+      textscreen[lin][col].bcolor=tbcolor;
+      textscreen[lin][col].flags=flags;
       col++;
       if(col*chw>=ScreenWidth) {
         col=0; lin++;

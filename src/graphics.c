@@ -526,8 +526,13 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
 
 /* Text zeichnen   */
 
-  SetForeground(gem_colors[textcolor]);
-  set_bcolor(gem_colors[WHITE]);
+  if(tree[idx].ob_state & SELECTED) {
+    SetForeground(gem_colors[textcolor]);
+    set_bcolor(gem_colors[BLACK]);
+  } else{
+    SetForeground(gem_colors[textcolor]);
+    set_bcolor(gem_colors[WHITE]);
+  }
 
   if(tree[idx].ob_state & DISABLED) {SetForeground(gem_colors[LWHITE]);}
   switch(LOBYTE(tree[idx].ob_type)) {

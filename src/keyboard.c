@@ -7,7 +7,7 @@
  * COPYING for details
  */
  
-#define VERSION "1.03"
+#define VERSION "1.04"
  
  
 #if 0
@@ -99,7 +99,7 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
 /*67*/  {68,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"v",    50*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},
 /*68*/  {69,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)">",    53*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},
 /*69*/  {70,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"^",    50*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
-/*70*/  {71,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"HELP", 58*CharWidth,8*CharHeight,5*CharWidth,1*CharHeight},
+/*70*/  {71,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"hide", 58*CharWidth,8*CharHeight,5*CharWidth,1*CharHeight},
 /*71*/  {72,-1,-1,G_STRING, NONE,            NORMAL, (LONG)"TTconsole", 47*CharWidth,1*CharHeight,10*CharWidth,2*CharHeight},
 /*72*/  {73,-1,-1,G_STRING, NONE,            NORMAL, (LONG)VERSION, 49*CharWidth,2*CharHeight,10*CharWidth,2*CharHeight},
 /*73*/  { 0,-1,-1,G_STRING, NONE|LASTOB,     NORMAL, (LONG)"(c)2008 MH", 47*CharWidth,4*CharHeight,10*CharWidth,2*CharHeight}

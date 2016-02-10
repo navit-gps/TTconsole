@@ -127,14 +127,14 @@ void intro() {
   set_color(MAGENTA);  box(10,10,ScreenWidth-10,ScreenHeight-10);
   set_color(LIGHTBLUE);box(20,20,ScreenWidth-20,ScreenHeight-20);
 
-  ltext(0,100,15,25,0,0,"(c) Markus Hoffmann 2008");
+  ltext(10,100,15,25,0,0,"(c) Markus Hoffmann 2008");
   set_color(WHITE);
   set_bcolor(BLACK);
 
 }
 void usage(){
   puts("\n Usage:\n ------ \n");
-  printf(" TTconsole [options] [<shell-cmd>] --- excecute shell\n\n");
+  puts(" TTconsole [options] [<shell-cmd>] --- excecute shell\n");
   puts("--exec <command>        --- execute shell command and exit TTconsole");
   puts("-h --help           --- Usage");
 }
@@ -158,15 +158,15 @@ int main(int argc, char** argv) {
   gem_init();
 
   while(TsScreen_pen(&x,&y,&pen)) ; /* flush pen input */
+  Fb_Clear(0,5*CharHeight,BLACK);
 
   intro();    /* Splash Message ausgeben */
 
   set_color(WHITE);
   set_bcolor(BLACK);
-  Fb_Clear(0,4*CharHeight,BLACK);
 
   printf("first use of g_out.\n");
-  g_outs("\033[7m      Shell-Access on the TomTom V.1.03        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033[7m      Shell-Access on the TomTom V.1.04        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,vinfo.xres/CharWidth,vinfo.yres/CharHeight);
   g_outs(buffer);
@@ -234,6 +234,7 @@ int main(int argc, char** argv) {
     write(terminal_fd,"\n",1);
   }
   printf("Enter main loop.\n");
+  int hideit=0;
 
   while (!DoExit) {
     tv.tv_sec =  1;   /* Wait up to five seconds. */
@@ -295,9 +296,11 @@ int main(int argc, char** argv) {
 	        else if(sel==BUT_BLANK)     {c=32;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_QUIT) DoExit=1;
 	        else if(sel==BUT_CLEAR) {g_out(27);g_outs("[2J");g_out(27);g_outs("[m");g_out(27);g_outs("[H");}
-	        else if(sel==BUT_HELP) {
-                  /* hier koennte man ein form_alert ausfuehen, wenn es schon funktionierte....*/
-		  g_outs("TTconsole:\n==========\n\nTouch into the right upper corner to activate the virtual keyboard.\n");
+	        else if(sel==BUT_HIDE) {
+		  cursor_onoff(0,col*CharWidth,lin*CharWidth);
+                  textscreen_redraw(0,0,ScreenWidth/CharWidth,11);      
+		  cursor_onoff(1,col*CharWidth,lin*CharWidth);
+		  hideit=1;
 		}
 	        else {
 		  c=*(char *)objects[sel].ob_spec;
@@ -337,8 +340,9 @@ int main(int argc, char** argv) {
 		  }
 		  write(terminal_fd,&c,1);
 		}
-	        objects[sel].ob_state&=(~SELECTED);
-	        objc_draw(objects,0,-1,0,0);       		
+		objects[sel].ob_state&=(~SELECTED);
+		if(hideit) {hideit=0;objc_draw(objects,BUT_KEYB,BUT_KEYB,0,0);}
+                else objc_draw(objects,0,-1,0,0);       		
               }	  
 	    }
           } else if (pen && x>ScreenWidth/2) {

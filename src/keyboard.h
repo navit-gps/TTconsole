@@ -22,7 +22,7 @@
 #define BUT_CAPS 31
 #define BUT_TAB 18
 #define BUT_CLEAR 3
-#define BUT_HELP 70
+#define BUT_HIDE 70
 #define BUT_CAPS 31
 #define BUT_SHIFT1 45
 #define BUT_SHIFT2 57
