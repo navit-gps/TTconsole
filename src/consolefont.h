@@ -12,6 +12,17 @@
 
 extern const unsigned char asciiTable[];
 
+#define FL_NORMAL        0
+#define FL_BOLD          2
+#define FL_DIM           4
+#define FL_UNDERLINE  0x10
+#define FL_BLINK      0x20
+#define FL_REVERSE    0x80
+#define FL_HIDDEN    0x100
+
+
+
+
 void FbRender_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackColor, char character, int flags);
 void FbRender_BlitText(int x, int y, unsigned short aColor, unsigned short aBackColor, char *string);
 void Fb_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackColor, char character,int flags);

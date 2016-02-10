@@ -22,6 +22,20 @@ typedef struct {
 	unsigned char flags;
 } CINFO;
 
+
+#define AT_NORMAL       0
+#define AT_KEYLOCK      4
+#define AT_INSERT     0x10
+#define AT_SOFTSCROLL 0x20
+
+#define AT_LINEWRAP  (1<<7)
+#define AT_KEYREPEAT (1<<8)
+#define AT_AUTOLF   (1<<20)
+#define AT_CURSORON   (1<<25)
+
+#define AT_DEFAULT (AT_LINEWRAP|AT_CURSORON)
+
+
 extern CINFO textscreen[];
 extern int terminal_fd;
 extern int col,lin;

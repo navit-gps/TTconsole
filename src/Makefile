@@ -28,7 +28,7 @@ BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
 
 
 INCS = -I. -I$(HOME)/TomTom/ttlinux/include
-DIR=TTconsole-1.06
+DIR=TTconsole-1.07
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)
@@ -59,7 +59,7 @@ $(DIR2).zip : $(BINDIST)
 	mkdir /tmp/$(DIR2)/TTconsole
 	mkdir /tmp/$(DIR2)/SDKRegistry
 	rsync -a README /tmp/$(DIR2)/
-	rsync -a RELEASE_NOTES /tmp/$(DIR2)/
+	rsync -a RELEASE_NOTES /tmp/$(DIR2)/TTconsole/
 	rsync -a TTconsole /tmp/$(DIR2)/TTconsole/
 	rsync -a TTconsole-wrapper /tmp/$(DIR2)/TTconsole/
 	rsync -a terminal.bmp /tmp/$(DIR2)/SDKRegistry/

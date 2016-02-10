@@ -7,7 +7,7 @@
  * COPYING for details
  */
  
-#define VERSION "1.06"
+#define VERSION "1.07"
  
  
 #if 0
@@ -107,7 +107,7 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
 /*75*/  {76,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"E",    50*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
 /*76*/  {77,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"v",    53*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
 /*77*/  {78,-1,-1,G_STRING, NONE,            NORMAL, (LONG)"TTconsole", 47*CharWidth,4*CharHeight+4,10*CharWidth,2*CharHeight},
-/*78*/  {79,-1,-1,G_STRING, NONE,            NORMAL, (LONG)VERSION, 58*CharWidth,9*CharHeight,5*CharWidth,1*CharHeight},
+/*78*/  {79,-1,-1,G_STRING, NONE,            NORMAL, (LONG)VERSION, 59*CharWidth,9*CharHeight+2,5*CharWidth,1*CharHeight},
 /*79*/  { 0,-1,-1,G_STRING, NONE|LASTOB,     NORMAL, (LONG)"TTconsole", 47*CharWidth,4*CharHeight+4,10*CharWidth,2*CharHeight}
   };
   int keyboard_objccount=sizeof(keyboard_objects)/sizeof(OBJECT);

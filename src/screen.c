@@ -76,13 +76,13 @@ void FbRender_Close() {
 void FbRender_Clear(int y, int h, unsigned short color) {
   if (y<0|| y+h>ScreenHeight) return;
   unsigned short *ptr  = (unsigned short*)(fbbackp+y*((vinfo.xres*vinfo.bits_per_pixel)/8));
-  unsigned short *endp = ptr + (h+1)*Scanline/sizeof(short);
+  unsigned short *endp = ptr + h*Scanline/sizeof(short);
   while (ptr < endp) *ptr++=color;
 }
 void Fb_Clear(int y, int h, unsigned short color) {
   if (y<0|| y+h>ScreenHeight) return;
   unsigned short *ptr  = (unsigned short*)(fbp+y*Scanline);
-  unsigned short *endp = ptr + (h+1)*Scanline/sizeof(short);
+  unsigned short *endp = ptr + h*Scanline/sizeof(short);
   while (ptr < endp) *ptr++=color;
 }
 
@@ -119,6 +119,11 @@ void set_bcolor(unsigned short color) {
 
 void plot(int x, int y) {
   Fb_PutPixel(x,y,global_color);
+}
+
+unsigned short point(int x, int y) {
+  unsigned short *ptr  = (unsigned short*)(fbp+x*2+y*Scanline);
+  return(*ptr);
 }
 
 void DrawHorizontalLine(int X, int Y, int width, unsigned short color) {

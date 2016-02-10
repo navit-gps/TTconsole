@@ -22,13 +22,11 @@
   #define YELLOW    0xffe0
   #define MAGENTA   0xf81f
   #define LIGHTBLUE 0x07ff
-  #define GREY      0x7777
-  #define LIGHTGREY 0xaaaa
+  #define GREY      0x7bef
+  #define LIGHTGREY 0xadf7
 
-#ifndef min
 #define min(a,b) ((a<b)?a:b)
 #define max(a,b) ((a>b)?a:b)
-#endif
 
   #define ScreenWidth  (vinfo.xres)
   #define ScreenHeight (vinfo.yres)

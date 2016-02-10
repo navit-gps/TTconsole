@@ -37,14 +37,16 @@
 #include "graphics.h"
 #include "keyboard.h"
   
+struct winsize win={25,80,320,240};
+char *cutbuffer;
+
+
 
 void io_error(int n, char *s) {
   char buffer[strlen(s)+100];
   sprintf(buffer,"\033[31mIOERROR: errno=%d\033[m\n",n);
   g_outs(buffer);
 }
-
-struct winsize win={25,80,320,240};
 
 
 
@@ -126,23 +128,19 @@ void intro() {
 
   set_color(MAGENTA);  box(10,10,ScreenWidth-10,ScreenHeight-10);
   set_color(LIGHTBLUE);box(20,20,ScreenWidth-20,ScreenHeight-20);
-
- // ltext(10,100,15,25,0,0,"(c) Markus Hoffmann 2008");
-  set_color(WHITE);
-  set_bcolor(BLACK);
-
 }
 void usage(){
   puts("\n Usage:\n ------ \n");
   puts(" TTconsole [options] [<shell-cmd>] --- excecute shell\n");
   puts("--exec <command>        --- execute shell command and exit TTconsole");
-  puts("-h --help           --- Usage");
+  puts("--noclear               --- Do not clear the screen before excecuting the shell");
+  puts("--login <login_binary>  --- Use the login_binary to log in instead of the default [%s]");
+  puts("-h --help               --- Usage");
 }
 
 
 int main(int argc, char** argv) {
   char buffer[100];
-  char *cutbuffer;
   int x=0,y=0,pen=0;
   int sel,retval;
   int clickcount=0;
@@ -150,8 +148,11 @@ int main(int argc, char** argv) {
   int copyareaend;
   static areadefined=0;
   struct timeval tv;
+  static char *default_shell="/bin/sh";
+  int DoExit=0,doexec=0,noclear=0;
 
-  char *arg[1];arg[0]="/bin/sh";arg[1]=NULL;
+  char *arg[argc+1];         /* we pass in maximum argc values */
+  int anzarg=1;
   fd_set active_fd_set,read_fd_set;
   OBJECT *objects=keyboard_objects;
 
@@ -163,15 +164,45 @@ int main(int argc, char** argv) {
 
   cutbuffer=malloc(AnzLine*(LineLen+1)+1);
 
+
+  /* Now processing the commandline */
+  printf("Processing command line.\n");
+
+  if(argc>1) {
+    int count;
+    for(count=1;count<argc;count++) {    
+      if(strcmp(argv[count],"-h")==0) {
+        usage();
+        DoExit=1;
+      } else if (strcmp(argv[count],"--help")==0) {
+	usage();
+        DoExit=1;
+      } else if (strcmp(argv[count],"--exec")==0) {
+        doexec=1;
+      } else if (strcmp(argv[count],"--noclear")==0) {
+        noclear=1;
+      } else if (strcmp(argv[count],"--login")==0) {
+        count++;
+	if(count<argc && strlen(argv[count])) {
+          default_shell=argv[count];
+	}
+      } else {
+        arg[anzarg++]=argv[count];
+      }
+    }
+  }
+  arg[0]=default_shell;
+  arg[anzarg]=NULL;
+
   while(TsScreen_pen(&x,&y,&pen)) ; /* flush pen input */
-  Fb_Clear(0,ScreenHeight,BLACK);   /* clear screen */
+  if(noclear==0) Fb_Clear(0,ScreenHeight,BLACK);   /* clear screen */
 
   intro();    /* Splash Message ausgeben */
 
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033[7m      Shell-Access on the TomTom V.1.06        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.07        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);
@@ -187,7 +218,7 @@ int main(int argc, char** argv) {
   keyboard_objects[0].ob_x=vinfo.xres-keyboard_objects[0].ob_width;
 
 /* Zuerst stdin und stdout umleiten */
-
+  
   printf("Starting the shell %s\n",arg[0]);
   terminal_fd=spawn(arg);
   if(terminal_fd<0) {
@@ -202,7 +233,6 @@ int main(int argc, char** argv) {
   }     
 
 
-  int DoExit =0;
   int cc=0;
   char c;
   static int prev_pen = 0;
@@ -211,38 +241,15 @@ int main(int argc, char** argv) {
 
   FD_ZERO (&active_fd_set);
   FD_SET (tsfd, &active_fd_set); 
-  printf("SET fd_set.\n");
   FD_SET (terminal_fd, &active_fd_set); 
-  printf("SET fd_set.\n");
 
   objc_draw(objects,BUT_KEYB,BUT_KEYB,0,0);
 
-  /* Now passing the commandline to shell */
-  printf("Processing command line.\n");
-
-  if(argc>1) {
-    int count;
-    for(count=1;count<argc;count++) {    
-      if(strcmp(argv[count],"-h")==0) {
-        usage();
-        DoExit=1;
-      } else if (strcmp(argv[count],"--help")==0) {
-	usage();
-        DoExit=1;
-      } else if (strcmp(argv[count],"--exec")==0) {
-        DoExit=1;
-      } else {
-        write(terminal_fd,argv[count],strlen(argv[count]));
-        write(terminal_fd," ",1);      
-      }
-    }
-    write(terminal_fd,"\n",1);
-  }
   printf("Enter main loop.\n");
   int hideit=0;
 
   while (!DoExit) {
-    tv.tv_sec =  1;   /* Wait up to five seconds. */
+    tv.tv_sec =  1;   /* Wait up to one second. */
     tv.tv_usec = 10000;
 
     read_fd_set = active_fd_set;
@@ -250,9 +257,23 @@ int main(int argc, char** argv) {
     g_outs("PARENT: Waiting for an event...");
 #endif  
     retval = select (FD_SETSIZE, &read_fd_set, NULL, NULL, &tv); 
-    if(retval<0) g_outs("select failed!\n");
-    else if(!retval) {
+    if(retval<0) {
+      if(errno==EINTR) ; /* This is OK */
+      else if(errno==EBADF) { /* This is not OK */
+        Fb_BlitText(0,0,RED,BLACK,"TTconsole: select failed! Connection to Shell lost! ");
+        printf("Connection to shell lost! ERROR, QUIT\n");
+        while (TsScreen_pen(&x,&y,&pen));
+        while (!TsScreen_pen(&x,&y,&pen)); 
+        while (TsScreen_pen(&x,&y,&pen));     
+	FbRender_Close();
+        TsScreen_Exit();
+        exit(0);
+      } else {
+        Fb_BlitText(0,0,RED,BLACK,"TTconsole: select failed! ");
+      }
+    } else if(!retval) {
      // g_outs("++timeout!\n");
+      if(doexec) DoExit=1;  /* This, probably, will also not work.  */
     } else {
       if(FD_ISSET(tsfd,&read_fd_set)) {  /*  Touchscreen event...   */
         if(TsScreen_pen(&x,&y,&pen)) {
@@ -287,19 +308,41 @@ int main(int argc, char** argv) {
 	          }
 	        }
 	      } /*else {sprintf(buffer,"Touched object #%d\n",sel);g_outs(buffer);}*/
-	    } else {
+	    } else {  /* pen=0 */
 	      if(objects[sel].ob_flags & EXIT) {
-  	        if(sel==BUT_RETURN)         {c=13;write(terminal_fd,&c,1);}
+  	        if(sel==BUT_RETURN)         {
+		  if(objects[BUT_CTRL1].ob_state&SELECTED||objects[BUT_CTRL2].ob_state&SELECTED) 
+		       c=27;
+		  else c=13;
+		  write(terminal_fd,&c,1);
+		}
 	        else if(sel==BUT_KEYB) objc_draw(objects,0,-1,0,0);
 	        else if(sel==BUT_BSP)       {c=8;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_CUR_UP)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[A",2);}
 	        else if(sel==BUT_CUR_DOWN)  {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[B",2);}
 	        else if(sel==BUT_CUR_RIGHT) {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[C",2);}
 	        else if(sel==BUT_CUR_LEFT)  {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[D",2);}
-	        else if(sel==BUT_F1)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OP",2);}
-	        else if(sel==BUT_F2)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OQ",2);}
-	        else if(sel==BUT_F3)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OR",2);}
-	        else if(sel==BUT_F4)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OS",2);}
+	        else if(sel==BUT_F1) {
+		  c=27;write(terminal_fd,&c,1);
+		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) 
+		       write(terminal_fd,"[23~",4);
+		  else write(terminal_fd,"OP",2);
+		} else if(sel==BUT_F2) {
+		  c=27;write(terminal_fd,&c,1);
+		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) 
+		       write(terminal_fd,"[24~",4);
+		  else write(terminal_fd,"OQ",2);
+		} else if(sel==BUT_F3) {
+		  c=27;write(terminal_fd,&c,1);
+		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) 
+		       write(terminal_fd,"[25~",4);
+		  else write(terminal_fd,"OR",2);
+		} else if(sel==BUT_F4) {
+		  c=27;write(terminal_fd,&c,1);
+		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) 
+		       write(terminal_fd,"[26~",4);
+		  else write(terminal_fd,"OS",2);
+		}
 #if 0
 	        else if(sel==BUT_F5)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[15~",4);}
 	        else if(sel==BUT_F6)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[17~",4);}
@@ -309,26 +352,30 @@ int main(int argc, char** argv) {
 	        else if(sel==BUT_F10)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[21~",4);}
 	        else if(sel==BUT_F11)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[23~",4);}
 	        else if(sel==BUT_F12)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[24~",4);}
-#endif
+#endif                
 	        else if(sel==BUT_PGUP)      {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[5~",3);}
 	        else if(sel==BUT_PGDOWN)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[6~",3);}
 	        else if(sel==BUT_INSERT)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[2~",3);}
 	        else if(sel==BUT_DELETE)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[3~",3);}
 	        else if(sel==BUT_POS1)      {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[H",2);}
 	        else if(sel==BUT_END)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[F",2);}
-	        else if(sel==BUT_TAB)       {c=9;write(terminal_fd,&c,1);}
+	        else if(sel==BUT_TAB)       {
+		  if(objects[BUT_CTRL1].ob_state&SELECTED||objects[BUT_CTRL2].ob_state&SELECTED) 
+		       c=27;
+		  else c=9;
+		  write(terminal_fd,&c,1);
+		}
 	        else if(sel==BUT_ESC)       {c=27;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_BLANK)     {c=32;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_PASTE)     {write(terminal_fd,cutbuffer,strlen(cutbuffer));}
-	        else if(sel==BUT_QUIT) DoExit=1;
-	        else if(sel==BUT_CLEAR) {g_out(27);g_outs("[2J");g_out(27);g_outs("[m");g_out(27);g_outs("[H");}
+	        else if(sel==BUT_QUIT)      DoExit=1;
+	        else if(sel==BUT_CLEAR)     {g_out(27);g_outs("c");}
 	        else if(sel==BUT_HIDE) {
 		  cursor_onoff(0,col*CharWidth,lin*CharHeight);
                   textscreen_redraw(0,0,ScreenWidth/CharWidth,11);      
 		  cursor_onoff(1,col*CharWidth,lin*CharHeight);
 		  hideit=1;
-		}
-	        else {
+		} else {
 		  c=*(char *)objects[sel].ob_spec;
 		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) {
 		    objects[BUT_SHIFT1].ob_state&=(~SELECTED);
@@ -390,7 +437,7 @@ int main(int argc, char** argv) {
 	    c=x/CharWidth;
 	    l=y/CharHeight;
 	    if(click!=clickcount) {
-            Fb_BlitText(0,0,RED,BLACK,"TTconsole: Pen pressed! CLICK ");
+            Fb_BlitText(0,0,RED,BLACK,"TTconsole: CLICK ");
 	      if(areadefined) {
 	      /* alte copyarea loeschen */
 	        int j;
@@ -443,7 +490,17 @@ int main(int argc, char** argv) {
         }
       } else if(FD_ISSET(terminal_fd,&read_fd_set)) {
         cc=read(terminal_fd,&c,1);
-        if(cc) g_out(c);
+        if(cc>0) g_out(c);
+	else if(cc==-1) {
+	  if(errno==EINTR || errno==EAGAIN) ; /* This is OK */
+          else if(errno==EBADF ||errno==EIO) { /* This is not OK */
+            Fb_BlitText(0,0,RED,BLACK,"TTconsole: read failed! Connection to Shell lost! ");
+            printf("Connection to shell lost! ERROR, QUIT\n");
+	    DoExit=1;
+          } else {
+            Fb_BlitText(0,0,RED,BLACK,"TTconsole: read failed! ");
+          }
+	}
       } 
     }
   }  

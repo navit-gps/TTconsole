@@ -125,7 +125,7 @@ void Fb_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackC
   ptr+=x;
   register unsigned short *endp  = ptr+CharHeight*ScreenWidth;
 
-  if((flags&0x80)==0x80) { /* reverse */
+  if(flags&FL_REVERSE) { /* reverse */
 #if 1
     unsigned short t=aBackColor;
     aBackColor=aColor;
@@ -139,14 +139,14 @@ void Fb_BlitCharacter(int x, int y, unsigned short aColor, unsigned short aBackC
 #endif
   }
 #if 0
-  if((flags&2)==2) {/* bold */
+  if(flags&FL_BOLD) {/* bold */
     data0|=data1;
     data1|=data2;
     data2|=data3;
     data3|=data4;
   }
 #endif  
-  if((flags&0x10)==0x10) {/* underline */
+  if(flags&FL_UNDERLINE) {/* underline */
     data0|=0x80;
     data1|=0x80;
     data2|=0x80;
