@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <sysexits.h>
+
+
 #include <unistd.h>
 //#include <signal.h>
 #include <errno.h>
@@ -102,14 +105,14 @@ int spawn (char *argv[]) {
     /* Now spawn the intended programme. */
     if (execv (argv[0], argv)) {
       /* execv() should not return. */
-      g_outs("ERROR spawning programme\n");
+      g_outs("ERROR spawning program\n");
       return -1;
     }
   } else if (pid < 0) {
     io_error(errno,"forkpty");
     if(errno==ENOENT) g_outs("There are no available ttys.\n");
     g_outs("slavename=");g_outs(slavename);
-    g_outs("\nERROR spawning programme\n");
+    g_outs("\nERROR spawning program\n");
     return -1;
   }
 #ifdef SAVE_STDERR
@@ -130,14 +133,17 @@ void intro() {
   set_color(LIGHTBLUE);box(20,20,ScreenWidth-20,ScreenHeight-20);
 }
 void usage(){
-  puts("\n Usage:\n ------ \n");
-  puts(" TTconsole [options] [<shell-cmd>] --- excecute shell\n");
-  puts("--exec <command>        --- execute shell command and exit TTconsole");
-  puts("--noclear               --- Do not clear the screen before excecuting the shell");
-  puts("--login <login_binary>  --- Use the login_binary to log in instead of the default [%s]");
-  puts("-h --help               --- Usage");
+  puts("\nUsage: "
+       " TTconsole [options] [<shell-cmd>] --- excecute shell\n\n"
+       "--exec <command>        --- execute shell command and exit TTconsole\n"
+       "--noclear               --- do not clear the screen before excecuting the shell\n"
+       "--rotatets              --- rotate touchscreen orientation by 90 deg\n"
+       "--keyboardlayout_en     --- use US keyboard layout\n"
+       "--login <login_binary>  --- Use the login_binary to log in instead of the default [%s]\n"
+       "-h --help               --- Usage");
 }
 
+extern int rotatets,keyboardlayout;
 
 int main(int argc, char** argv) {
   char buffer[100];
@@ -177,11 +183,11 @@ int main(int argc, char** argv) {
       } else if (strcmp(argv[count],"--help")==0) {
 	usage();
         DoExit=1;
-      } else if (strcmp(argv[count],"--exec")==0) {
-        doexec=1;
-      } else if (strcmp(argv[count],"--noclear")==0) {
-        noclear=1;
-      } else if (strcmp(argv[count],"--login")==0) {
+      } else if (strcmp(argv[count],"--exec")==0) doexec=1;
+      else if (strcmp(argv[count],"--noclear")==0) noclear=1;
+      else if (strcmp(argv[count],"--rotatets")==0) rotatets=1;
+      else if (strcmp(argv[count],"--keyboardlayout_en")==0) keyboardlayout=1; /* 1 means us */
+      else if (strcmp(argv[count],"--login")==0) {
         count++;
 	if(count<argc && strlen(argv[count])) {
           default_shell=argv[count];
@@ -197,12 +203,15 @@ int main(int argc, char** argv) {
   while(TsScreen_pen(&x,&y,&pen)) ; /* flush pen input */
   if(noclear==0) Fb_Clear(0,ScreenHeight,BLACK);   /* clear screen */
 
+  /* Wenn gewuenscht: Keyboard-layout aendern...*/
+  if(keyboardlayout) objects=keyboard_objects_en;
+
   intro();    /* Splash Message ausgeben */
 
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.08        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.10        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);
@@ -215,7 +224,7 @@ int main(int argc, char** argv) {
   win.ws_ypixel=vinfo.yres;
 
   /* Place keyboard to upper right corner */
-  keyboard_objects[0].ob_x=vinfo.xres-keyboard_objects[0].ob_width;
+  objects[0].ob_x=vinfo.xres-keyboard_objects[0].ob_width;
 
 /* Zuerst stdin und stdout umleiten */
   
@@ -229,7 +238,7 @@ int main(int argc, char** argv) {
     while (TsScreen_pen(&x,&y,&pen));  
     FbRender_Close();
     TsScreen_Exit();
-    exit(0);
+    exit(EX_OSERR);
   }     
 
 
@@ -243,7 +252,7 @@ int main(int argc, char** argv) {
   FD_SET (tsfd, &active_fd_set); 
   FD_SET (terminal_fd, &active_fd_set); 
 
-  objc_draw(objects,BUT_KEYB,BUT_KEYB,0,0);
+  objc_draw(objects,BUT_KEYB,BUT_KEYB,objects[0].ob_x,objects[0].ob_y);
 
   printf("Enter main loop.\n");
   int hideit=0;
@@ -267,7 +276,7 @@ int main(int argc, char** argv) {
         while (TsScreen_pen(&x,&y,&pen));     
 	FbRender_Close();
         TsScreen_Exit();
-        exit(0);
+        exit(EX_OSERR);
       } else {
         Fb_BlitText(0,0,RED,BLACK,"TTconsole: select failed! ");
       }
@@ -298,13 +307,13 @@ int main(int argc, char** argv) {
                 static int oc=-1;
 	        if(oc!=clickcount) {
   	          objects[sel].ob_state^=SELECTED;
-	          objc_draw(objects,sel,sel,0,0);
+	          objc_draw(objects,sel,sel,objects[0].ob_x,objects[0].ob_y);
 		  oc=clickcount;
 	          if(objects[sel].ob_flags & TOUCHEXIT) {
   	            if(sel==BUT_RETURN) ;
 	            else {char a=*(char *)objects[sel].ob_spec; g_out('*');}
 	            objects[sel].ob_state&=(~SELECTED);
-	            objc_draw(objects,sel,sel,0,0);       
+	            objc_draw(objects,sel,sel,objects[0].ob_x,objects[0].ob_y);       
 	          }
 	        }
 	      } /*else {sprintf(buffer,"Touched object #%d\n",sel);g_outs(buffer);}*/
@@ -380,31 +389,9 @@ int main(int argc, char** argv) {
 		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) {
 		    objects[BUT_SHIFT1].ob_state&=(~SELECTED);
 		    objects[BUT_SHIFT2].ob_state&=(~SELECTED);
-		    if(c=='^') c='°';
-		    else if(c=='1') c='!';
-		    else if(c=='2') c='\"';
-		    else if(c=='3') c='§';
-		    else if(c=='4') c='$';
-		    else if(c=='5') c='%';
-		    else if(c=='6') c='&';
-		    else if(c=='7') c='/';
-		    else if(c=='8') c='(';
-		    else if(c=='9') c=')';
-		    else if(c=='0') c='=';
-		    else if(c=='`') c='´';
-		    else if(c=='+') c='*';
-		    else if(c=='#') c='\'';
-		    else if(c=='<') c='>';
-		    else if(c==',') c=';';
-		    else if(c=='.') c=':';
-		    else if(c=='-') c='_';
-		    else if(c=='[') c='{';
-		    else if(c==']') c='}';
-		    else c=toupper(c);
+		    c=shift_translation(c);
 		  }
-		  if(objects[BUT_CAPS].ob_state&SELECTED) {
-		    c=toupper(c);
-		  }  
+		  if(objects[BUT_CAPS].ob_state&SELECTED) c=caps_translation(c);
 		  if(objects[BUT_CTRL1].ob_state&SELECTED||objects[BUT_CTRL2].ob_state&SELECTED) {
 		      objects[BUT_CTRL1].ob_state&=(~SELECTED);
 		      objects[BUT_CTRL2].ob_state&=(~SELECTED);
@@ -412,23 +399,12 @@ int main(int argc, char** argv) {
 		  }
 		  if(objects[BUT_ALTG].ob_state&SELECTED) {
 		    objects[BUT_ALTG].ob_state&=(~SELECTED);
-		    if(c=='q') c='@';
-		    else if(c=='<') c='|';
-		    else if(c=='+') c='~';
-		    else if(c=='e') c='?';
-		    else if(c=='2') c='²';
-		    else if(c=='3') c='³';
-		    else if(c=='7') c='{';
-		    else if(c=='8') c='[';
-		    else if(c=='9') c=']';
-		    else if(c=='0') c='}';
-		    else if(c=='?') c='\\';
-		    else if(c=='m') c='µ';
+		    c=altGr_translation(c);
 		  }
 		  write(terminal_fd,&c,1);
 		}
 		objects[sel].ob_state&=(~SELECTED);
-		if(hideit) {hideit=0;objc_draw(objects,BUT_KEYB,BUT_KEYB,0,0);}
+		if(hideit) {hideit=0;objc_draw(objects,BUT_KEYB,BUT_KEYB,objects[0].ob_x,objects[0].ob_y);}
                 else objc_draw(objects,0,-1,0,0);       		
               }	  
 	    }
@@ -527,5 +503,5 @@ int main(int argc, char** argv) {
   free(cutbuffer);
   FbRender_Close();
   TsScreen_Exit();
-  return 0;
+  return(EX_OK);
 }

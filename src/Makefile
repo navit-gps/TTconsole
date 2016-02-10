@@ -1,4 +1,5 @@
 # Makefile for TomTomConsole (c) Markus Hoffmann V.1.02
+PATH=/home/hoffmann/bin:/usr/local/bin:/usr/bin:/usr/X11R6/bin:/usr/bin/X11:/usr/local/armlinux/3.3.3/bin:/usr/bin:/bin
 
 # Directories
 prefix=/usr/local
@@ -28,7 +29,7 @@ BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
 
 
 INCS = -I. -I$(HOME)/TomTom/ttlinux/include
-DIR=TTconsole-1.08
+DIR=TTconsole-1.11
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)
@@ -79,119 +80,13 @@ depend : $(DEPSRC)
 
 # DO NOT DELETE
 
-TTconsole.o TTconsole.ln: /usr/include/stdlib.h /usr/include/features.h
-TTconsole.o TTconsole.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-TTconsole.o TTconsole.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
-TTconsole.o TTconsole.ln: /usr/include/stdio.h /usr/include/bits/types.h
-TTconsole.o TTconsole.ln: /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h
-TTconsole.o TTconsole.ln: /usr/include/libio.h /usr/include/_G_config.h
-TTconsole.o TTconsole.ln: /usr/include/wchar.h /usr/include/bits/wchar.h
-TTconsole.o TTconsole.ln: /usr/include/gconv.h
-TTconsole.o TTconsole.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stdarg.h
-TTconsole.o TTconsole.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-TTconsole.o TTconsole.ln: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-TTconsole.o TTconsole.ln: /usr/include/bits/confname.h /usr/include/errno.h
-TTconsole.o TTconsole.ln: /usr/include/bits/errno.h /usr/include/linux/errno.h
-TTconsole.o TTconsole.ln: /usr/include/asm/errno.h /usr/include/asm-generic/errno.h
-TTconsole.o TTconsole.ln: /usr/include/asm-generic/errno-base.h /usr/include/sys/time.h
-TTconsole.o TTconsole.ln: /usr/include/time.h /usr/include/bits/time.h
-TTconsole.o TTconsole.ln: /usr/include/sys/select.h /usr/include/bits/select.h
-TTconsole.o TTconsole.ln: /usr/include/bits/sigset.h /usr/include/sys/stat.h
-TTconsole.o TTconsole.ln: /usr/include/bits/stat.h /usr/include/sys/socket.h
-TTconsole.o TTconsole.ln: /usr/include/sys/uio.h /usr/include/sys/types.h
-TTconsole.o TTconsole.ln: /usr/include/bits/uio.h /usr/include/bits/socket.h
-TTconsole.o TTconsole.ln: /usr/include/limits.h
-TTconsole.o TTconsole.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/limits.h
-TTconsole.o TTconsole.ln: /usr/include/bits/sockaddr.h /usr/include/asm/socket.h
-TTconsole.o TTconsole.ln: /usr/include/asm/sockios.h /usr/include/string.h
-TTconsole.o TTconsole.ln: /usr/include/math.h /usr/include/bits/huge_val.h
-TTconsole.o TTconsole.ln: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-TTconsole.o TTconsole.ln: /usr/include/termios.h /usr/include/bits/termios.h
-TTconsole.o TTconsole.ln: /usr/include/linux/fb.h /usr/include/asm/types.h
-TTconsole.o TTconsole.ln: /usr/include/sys/mman.h /usr/include/bits/mman.h
-TTconsole.o TTconsole.ln: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-TTconsole.o TTconsole.ln: /usr/include/pty.h /usr/include/sys/ioctl.h
-TTconsole.o TTconsole.ln: /usr/include/bits/ioctls.h /usr/include/asm/ioctls.h
-TTconsole.o TTconsole.ln: /usr/include/asm/ioctl.h /usr/include/bits/ioctl-types.h
-TTconsole.o TTconsole.ln: /usr/include/sys/ttydefaults.h screen.h consolefont.h terminal.h
-TTconsole.o TTconsole.ln: touchscreen.h graphics.h keyboard.h
-consolefont.o consolefont.ln: /usr/include/stdlib.h /usr/include/features.h
-consolefont.o consolefont.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-consolefont.o consolefont.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
-consolefont.o consolefont.ln: /usr/include/stdio.h /usr/include/bits/types.h
-consolefont.o consolefont.ln: /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h
-consolefont.o consolefont.ln: /usr/include/libio.h /usr/include/_G_config.h
-consolefont.o consolefont.ln: /usr/include/wchar.h /usr/include/bits/wchar.h
-consolefont.o consolefont.ln: /usr/include/gconv.h
-consolefont.o consolefont.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stdarg.h
-consolefont.o consolefont.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-consolefont.o consolefont.ln: /usr/include/linux/fb.h /usr/include/asm/types.h screen.h
-consolefont.o consolefont.ln: consolefont.h
-screen.o screen.ln: /usr/include/stdlib.h /usr/include/features.h
-screen.o screen.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-screen.o screen.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
-screen.o screen.ln: /usr/include/stdio.h /usr/include/bits/types.h
-screen.o screen.ln: /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h
-screen.o screen.ln: /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h
-screen.o screen.ln: /usr/include/bits/wchar.h /usr/include/gconv.h
-screen.o screen.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stdarg.h
-screen.o screen.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-screen.o screen.ln: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-screen.o screen.ln: /usr/include/sys/types.h /usr/include/time.h /usr/include/unistd.h
-screen.o screen.ln: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-screen.o screen.ln: /usr/include/signal.h /usr/include/bits/sigset.h
-screen.o screen.ln: /usr/include/bits/signum.h /usr/include/errno.h
-screen.o screen.ln: /usr/include/bits/errno.h /usr/include/linux/errno.h
-screen.o screen.ln: /usr/include/asm/errno.h /usr/include/asm-generic/errno.h
-screen.o screen.ln: /usr/include/asm-generic/errno-base.h /usr/include/string.h
-screen.o screen.ln: /usr/include/sys/ioctl.h /usr/include/bits/ioctls.h
-screen.o screen.ln: /usr/include/asm/ioctls.h /usr/include/asm/ioctl.h
-screen.o screen.ln: /usr/include/bits/ioctl-types.h /usr/include/sys/ttydefaults.h
-screen.o screen.ln: /usr/include/sys/stat.h /usr/include/bits/stat.h
-screen.o screen.ln: /usr/include/sys/reboot.h /usr/include/sys/time.h
-screen.o screen.ln: /usr/include/bits/time.h /usr/include/sys/select.h
-screen.o screen.ln: /usr/include/bits/select.h /usr/include/sys/mman.h
-screen.o screen.ln: /usr/include/bits/mman.h /usr/include/linux/fb.h
-screen.o screen.ln: /usr/include/asm/types.h /usr/include/linux/ioctl.h screen.h
-terminal.o terminal.ln: /usr/include/stdlib.h /usr/include/features.h
-terminal.o terminal.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-terminal.o terminal.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
-terminal.o terminal.ln: /usr/include/stdio.h /usr/include/bits/types.h
-terminal.o terminal.ln: /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h
-terminal.o terminal.ln: /usr/include/libio.h /usr/include/_G_config.h
-terminal.o terminal.ln: /usr/include/wchar.h /usr/include/bits/wchar.h
-terminal.o terminal.ln: /usr/include/gconv.h
-terminal.o terminal.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stdarg.h
-terminal.o terminal.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-terminal.o terminal.ln: /usr/include/linux/fb.h /usr/include/asm/types.h terminal.h
-terminal.o terminal.ln: screen.h consolefont.h
-graphics.o graphics.ln: /usr/include/stdlib.h /usr/include/features.h
-graphics.o graphics.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-graphics.o graphics.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
-graphics.o graphics.ln: /usr/include/stdio.h /usr/include/bits/types.h
-graphics.o graphics.ln: /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h
-graphics.o graphics.ln: /usr/include/libio.h /usr/include/_G_config.h
-graphics.o graphics.ln: /usr/include/wchar.h /usr/include/bits/wchar.h
-graphics.o graphics.ln: /usr/include/gconv.h
-graphics.o graphics.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stdarg.h
-graphics.o graphics.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-graphics.o graphics.ln: /usr/include/dirent.h /usr/include/bits/dirent.h
-graphics.o graphics.ln: /usr/include/sys/types.h /usr/include/time.h
-graphics.o graphics.ln: /usr/include/sys/stat.h /usr/include/bits/stat.h
-graphics.o graphics.ln: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-graphics.o graphics.ln: /usr/include/bits/confname.h /usr/include/string.h
-graphics.o graphics.ln: /usr/include/linux/fb.h /usr/include/asm/types.h screen.h
-graphics.o graphics.ln: graphics.h
-touchscreen.o touchscreen.ln: /usr/include/stdlib.h /usr/include/features.h
-touchscreen.o touchscreen.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-touchscreen.o touchscreen.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
-touchscreen.o touchscreen.ln: /usr/include/stdio.h /usr/include/bits/types.h
-touchscreen.o touchscreen.ln: /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h
+touchscreen.o touchscreen.ln: /usr/include/endian.h /usr/include/bits/endian.h
+touchscreen.o touchscreen.ln: /usr/include/sys/select.h /usr/include/bits/select.h
+touchscreen.o touchscreen.ln: /usr/include/bits/sigset.h /usr/include/bits/time.h
+touchscreen.o touchscreen.ln: /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h
+touchscreen.o touchscreen.ln: /usr/include/alloca.h /usr/include/stdio.h
 touchscreen.o touchscreen.ln: /usr/include/libio.h /usr/include/_G_config.h
-touchscreen.o touchscreen.ln: /usr/include/wchar.h /usr/include/bits/wchar.h
-touchscreen.o touchscreen.ln: /usr/include/gconv.h
-touchscreen.o touchscreen.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stdarg.h
-touchscreen.o touchscreen.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
-touchscreen.o touchscreen.ln: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-touchscreen.o touchscreen.ln: /usr/include/sys/types.h /usr/include/time.h
+touchscreen.o touchscreen.ln: /usr/include/wchar.h /usr/include/bits/stdio_lim.h
+touchscreen.o touchscreen.ln: /usr/include/bits/sys_errlist.h /usr/include/fcntl.h
+touchscreen.o touchscreen.ln: /usr/include/bits/fcntl.h
 keyboard.o keyboard.ln: consolefont.h graphics.h keyboard.h

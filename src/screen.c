@@ -1,3 +1,13 @@
+
+/* screen.c                                (c) Markus Hoffmann  2007-2008
+*/
+
+/* This file is part of TTconsole, the TomTom Console interface
+ * ======================================================================
+ * TTconsole is free software and comes with NO WARRANTY - read the file
+ * COPYING for details
+ */
+
 /* These functions are based on the 
   Hello World Example
   Copyright (C) 2004 TomTom BV. All Rights Reserved.  */
@@ -20,6 +30,8 @@
 #include <linux/ioctl.h>
 #include "screen.h"
 
+#define FB_DEVICENAME "/dev/fb"
+
 int fbfd = -1;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
@@ -30,22 +42,22 @@ char *fbbackp = 0;
 
 
 void FbRender_Open() {
-  fbfd=open("/dev/fb", O_RDWR);
+  fbfd=open(FB_DEVICENAME, O_RDWR);
   if (!fbfd) {
-    printf("ERROR: could not open framebufferdevice.\n");
+    printf("ERROR: could not open framebufferdevice %s.\n",FB_DEVICENAME);
     exit(1);
   }
 #if DEBUG
   printf("Framebuffer device now opened.\n");
 #endif
-  // Get fixed screen information
+  /* Get fixed screen information  */
   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
-    printf("Fout bij het lezen van de vaste informatie.\n");
+    printf("ERROR: Could not get fixed screen information.\n");
     exit(2);
   }
   // Get variable screen information
   if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
-    printf("Fout bij het lezen van de variabele informatie.\n");
+    printf("ERROR: Could not get variable screen information.\n");
     exit(3);
   }
 
@@ -57,11 +69,11 @@ void FbRender_Open() {
   // Map the device to memory
   fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
   if((int)fbp==-1) {
-    printf("Fout: gefaald bij het mappen van de framebuffer device in het geheugen.\n");
+    printf("ERROR: Could not map framebuffer device to memory.\n");
     exit(4);
   }
   fbbackp = (char*)malloc(screensize);
-  printf("De framebuffer device is succesvol gemapped in het geheugen.\n");
+  printf("Framebuffer device is ready.\n");
 }
 
 void FbRender_Close() {

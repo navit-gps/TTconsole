@@ -8,6 +8,7 @@
 cd /mnt/sdcard
 
 export PATH=$PATH:/mnt/sdcard/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/sdcard/lib
 export HOME=/mnt/sdcard/
 
 # now start the console application

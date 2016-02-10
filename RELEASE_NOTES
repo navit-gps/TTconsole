@@ -39,3 +39,18 @@ Release notes for Version 1.07 (Jan 2008)
 - new option --noclear and --login <binary>
 - improved terminal emulation, bug fixed
 
+Release notes for Version 1.08 (Jan 2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Added mouse event support  (ESC-[?10h=on ESC-[?10l=off)
+- Reports: ESC-[<x>;<y>;<pen>M ESC-[<x>;<y>;<pen>o
+
+Release notes for Version 1.09 (Jan 2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Fixed bug with keyboard display, when screen is wider than 320 pixels.
+
+Release notes for Version 1.10 (Sept 2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Now also works on TomTom with Navcore Version > 8.2
+- new commandline-option --rotatets
+- new commandline-option --keyboardlayout_en
+

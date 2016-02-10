@@ -49,5 +49,10 @@
 
 
 extern OBJECT keyboard_objects[];
+extern OBJECT keyboard_objects_en[];
 
+
+char shift_translation(char c);
+char caps_translation(char c);
+char altGr_translation(char c);
 

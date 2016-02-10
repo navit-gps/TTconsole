@@ -139,8 +139,8 @@ void g_out(char a) {
   static int scroll_region_1=0;
   static int scroll_region_2=30;
   static int cursor_saved_x=0,cursor_saved_y=0,cursor_saved_flags=0;
-  static number;
-  static numlock=0;
+  static int number=0;
+  static int numlock=0;
   int bbb;
   if(escflag==1) {
     if(a=='c') {   /* Terminal reset */

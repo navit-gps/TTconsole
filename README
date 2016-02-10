@@ -3,13 +3,13 @@
 
                         TTconsole
 
-                       VERSION 1.13
+                       VERSION 1.11
 
             (C) 2007-2008 by Markus Hoffmann
               (kollo@users.sourceforge.net)
 
 Name        : TTconsole                    
-Version     : 1.00                              Vendor: Markus Hoffmann
+Version     : 1.11                              Vendor: Markus Hoffmann
 Group       : Embedded/Shell                    License: GPL
 Packager    : Markus Hoffmann <kollo@users.sourceforge.net>
 URL         : http://www.opentom.org/TomTom_Console
@@ -71,7 +71,7 @@ Markus Hoffmann <kollo@users.sourceforge.net>
 
 COPYRIGHT
 
-Copyright (C) 1988-2008 Markus Hoffmann <kollo@users.sourceforge.net>
+Copyright (C) 1988-2009 Markus Hoffmann <kollo@users.sourceforge.net>
 
 This program is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public
