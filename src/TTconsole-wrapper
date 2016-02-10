@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Wrapper script for TTconsole (c) Markus Hoffmann 2008
+# Wrapper script for TTconsole (c) Markus Hoffmann 2008-2010
 #
 # This file is part of TTconsole, the TomTom virtual Console 
 # ======================================================================
@@ -10,7 +10,7 @@
 # Change these values if you like
 # You can add some commandline options to TTconsole here
 options=""
-#options="--keyboardlayout_en"
+#options="--keyboardlayout_en --bigfont --bigkeys"
 
 # set this to 'yes' (instead of no) if you want the watchdog feeder be started
 # usually you want this on Systems with Navcore 8.xxx and 9.xxx
@@ -24,6 +24,8 @@ cd /mnt/sdcard
 export PATH=$PATH:/mnt/sdcard/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/sdcard/lib
 export HOME=/mnt/sdcard/
+export TERMINFO=/mnt/sdcard/lib/terminfo
+export TERMCAP=/mnt/sdcard/lib/termcap
 
 if [ "$dodog" = "yes" ]
 then

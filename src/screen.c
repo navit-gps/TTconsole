@@ -28,24 +28,30 @@
 #include <sys/mman.h>
 #include <linux/fb.h>
 #include <linux/ioctl.h>
+#include <sysexits.h>
 #include "screen.h"
 
+#ifndef NATIVE
 #define FB_DEVICENAME "/dev/fb"
+#else
+#define FB_DEVICENAME "/dev/fb0"
+#endif
 
 int fbfd = -1;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
 long int screensize = 0;
 char *fbp = 0;
+#if 0
 char *fbbackp = 0;
+#endif
 
 
-
-void FbRender_Open() {
+void Fb_Open() {
   fbfd=open(FB_DEVICENAME, O_RDWR);
   if (!fbfd) {
     printf("ERROR: could not open framebufferdevice %s.\n",FB_DEVICENAME);
-    exit(1);
+    exit(EX_OSFILE);
   }
 #if DEBUG
   printf("Framebuffer device now opened.\n");
@@ -53,12 +59,12 @@ void FbRender_Open() {
   /* Get fixed screen information  */
   if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
     printf("ERROR: Could not get fixed screen information.\n");
-    exit(2);
+    exit(EX_IOERR);
   }
   // Get variable screen information
   if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
     printf("ERROR: Could not get variable screen information.\n");
-    exit(3);
+    exit(EX_IOERR);
   }
 
   printf("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel );
@@ -70,35 +76,40 @@ void FbRender_Open() {
   fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
   if((int)fbp==-1) {
     printf("ERROR: Could not map framebuffer device to memory.\n");
-    exit(4);
+    exit(EX_IOERR);
   }
-  fbbackp = (char*)malloc(screensize);
   
+#if 0  
+  fbbackp = (char*)malloc(screensize);
+#endif
   /* Now set the padding to zero, otherwise it can happen that nothing is visible
     if the pading was set to the second page...*/
 
   vinfo.xoffset=0;
-  vinfo.yoffset=0;
+  vinfo.yoffset=0;  /* bzw. vinfo.yres fuer die 2te page */
   ioctl(fbfd,FBIOPAN_DISPLAY,&vinfo);
 
   printf("Framebuffer device is ready.\n");
 }
 
-void FbRender_Close() {
+void Fb_Close() {
   if(fbfd > 0) {
     munmap(fbp, screensize);
     close(fbfd);
   }
+#if 0
   if(fbbackp) free(fbbackp);
+#endif
   fbfd = -1;
 }
-
+#if 0
 void FbRender_Clear(int y, int h, unsigned short color) {
   if (y<0|| y+h>ScreenHeight) return;
   unsigned short *ptr  = (unsigned short*)(fbbackp+y*((vinfo.xres*vinfo.bits_per_pixel)/8));
   unsigned short *endp = ptr + h*Scanline/sizeof(short);
   while (ptr < endp) *ptr++=color;
 }
+#endif
 void Fb_Clear(int y, int h, unsigned short color) {
   if (y<0|| y+h>ScreenHeight) return;
   unsigned short *ptr  = (unsigned short*)(fbp+y*Scanline);
@@ -106,15 +117,18 @@ void Fb_Clear(int y, int h, unsigned short color) {
   while (ptr < endp) *ptr++=color;
 }
 
+#if 0
 inline void FbRender_PutPixel(int x, int y, unsigned short color) {
   unsigned short *ptr  = (unsigned short*)(fbbackp+x*2+y*Scanline);
   *ptr = color;
 }
+#endif
 inline void Fb_PutPixel(int x, int y, unsigned short color) {
   unsigned short *ptr  = (unsigned short*)(fbp+x*2+y*Scanline);
   *ptr = color;
 }
 
+#if 0
 inline void FbRender_Flush() {
   memcpy(fbp,fbbackp,screensize);
 }
@@ -122,6 +136,7 @@ inline void FbRender_Flush() {
 inline void FbRender_Scroll(int target_y, int source_y, int height) {
   memmove(fbbackp+target_y*Scanline,fbbackp+source_y*Scanline,height*Scanline);
 }
+#endif
 inline void Fb_Scroll(int target_y, int source_y, int height) {
   memmove(fbp+target_y*Scanline,fbp+source_y*Scanline,height*Scanline);
 }
@@ -181,7 +196,7 @@ void DrawLine(int x0, int y0, int x1, int y1,unsigned short color) {
   dy <<= 1;						     // dy is now 2*dy
   dx <<= 1;						     // dx is now 2*dx
 
-  FbRender_PutPixel(x0, y0,color);
+  Fb_PutPixel(x0, y0,color);
   if (dx > dy) {
       int fraction = dy - (dx >> 1);			     // same as 2*dy - dx
       while (x0 != x1) {
@@ -191,7 +206,7 @@ void DrawLine(int x0, int y0, int x1, int y1,unsigned short color) {
 	  }
 	  x0 += stepx;
 	  fraction += dy;				     // same as fraction -= 2*dy
-	  FbRender_PutPixel(x0, y0,color);
+	  Fb_PutPixel(x0, y0,color);
       }
   } else {
       int fraction = dx - (dy >> 1);
@@ -208,10 +223,13 @@ void DrawLine(int x0, int y0, int x1, int y1,unsigned short color) {
 }
 
 
+
 void line(int x1,int y1,int x2,int y2) {
   if(y1==y2) DrawHorizontalLine(x1,y1,x2-x1,global_color);
   else DrawLine(x1,y1,x2,y2,global_color);
 }
+
+
 void box(int x1,int y1,int x2,int y2) {
   DrawHorizontalLine(x1,y1,x2-x1,global_color);
   DrawHorizontalLine(x1,y2,x2-x1,global_color);
@@ -267,6 +285,7 @@ void PutLinePoint(int x, int y, unsigned short color, int width) {
   }
 }
 
+#if 0
 void FbRender_inverse(int x, int y,int w,int h){
 
   if(x<0||y<0||w<=0||h<=0|| x+w>ScreenWidth|| y+h>ScreenHeight) return;
@@ -280,6 +299,7 @@ void FbRender_inverse(int x, int y,int w,int h){
     ptr+=ScreenWidth-w;
   }
 }
+#endif
 
 void Fb_inverse(int x, int y,int w,int h){
 

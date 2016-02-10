@@ -15,9 +15,9 @@ LIBDIR=${exec_prefix}/lib
 MANDIR=${prefix}/share/man
 
 
-LIBNO=1.12
+LIBNO=1.13
 
-all: TTconsole bindist dist
+all: TTconsole bindist dist TTconsole-l utility-bin-$(LIBNO).zip
 
 
 CC = arm-linux-gcc
@@ -25,14 +25,14 @@ DEBUG_DEFINES = -Wall -O3
 STRIP = arm-linux-strip
 
 OBJS= TTconsole.o consolefont.o screen.o terminal.o graphics.o \
-      touchscreen.o keyboard.o
+      touchscreen.o keyboard.o 5x7.o 8x16.o
 
 CSRC=$(OBJS:.o=.c)
 HSRC= consolefont.h screen.h terminal.h graphics.h touchscreen.h keyboard.h
 DIST= README INSTALL COPYING AUTHORS RELEASE_NOTES Makefile $(CSRC) $(HSRC) \
       terminal.bmp TTconsole.cap TTconsole-wrapper dogfeed
 BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
-         TTconsole-wrapper dogfeed
+         TTconsole-wrapper dogfeed demo.ans/*
 
 
 INCS = -I. -I$(HOME)/TomTom/ttlinux/include
@@ -49,8 +49,13 @@ DEPSRC=$(DISTOBJS:.o=.c)
 TTconsole: $(OBJS) Makefile
 	arm-linux-gcc -o $@ $(OBJS) -lm /usr/local/armlinux/3.3.3/arm-linux/lib/libutil.a
 	$(STRIP) $@
+TTconsole-l: $(DIST2) Makefile
+	gcc -DNATIVE -I. -o $@ $(DIST2) -lm -lutil
+	strip $@
+utility-bin-$(LIBNO).zip: utility/*
+	zip -r $@ utility
 clean:
-	rm -f *.o *.a *~ TTconsole *-bin.zip
+	rm -f *.o *.a *~ TTconsole *-bin.zip TTconsole-l
 dist :	$(DIR).tar.gz
 
 $(DIR).tar.gz : $(DIST2)
@@ -65,6 +70,7 @@ $(DIR2).zip : $(BINDIST)
 	rm -rf /tmp/$(DIR2)
 	mkdir /tmp/$(DIR2)
 	mkdir /tmp/$(DIR2)/bin
+	mkdir /tmp/$(DIR2)/text
 	mkdir /tmp/$(DIR2)/SDKRegistry
 	rsync -a README /tmp/$(DIR2)/
 	rsync -a RELEASE_NOTES /tmp/$(DIR2)/
@@ -73,6 +79,7 @@ $(DIR2).zip : $(BINDIST)
 	rsync -a dogfeed /tmp/$(DIR2)/bin/
 	rsync -a terminal.bmp /tmp/$(DIR2)/SDKRegistry/
 	rsync -a TTconsole.cap /tmp/$(DIR2)/SDKRegistry/
+	rsync -a demo.ans/* /tmp/$(DIR2)/text/
 	(cd /tmp ; zip -r $(DIR2).zip $(DIR2))
 	mv /tmp/$(DIR2).zip .	
 depend : $(DEPSRC) 

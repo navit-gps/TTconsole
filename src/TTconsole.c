@@ -42,8 +42,8 @@
   
 struct winsize win={25,80,320,240};
 char *cutbuffer;
-
-
+int CharWidth=CharWidth57;
+int CharHeight=CharHeight57;
 
 void io_error(int n, char *s) {
   char buffer[strlen(s)+100];
@@ -139,8 +139,36 @@ void usage(){
        "--noclear               --- do not clear the screen before excecuting the shell\n"
        "--rotatets              --- rotate touchscreen orientation by 90 deg\n"
        "--keyboardlayout_en     --- use US keyboard layout\n"
+       "--bigfont               --- use bigger 8x16 font\n"
+       "--bigkeys               --- use bigger keyboard\n"
        "--login <login_binary>  --- Use the login_binary to log in instead of the default [%s]\n"
        "-h --help               --- Usage");
+}
+
+void set_fontsize(int big);
+
+void change_fontsize(int big) {
+  if(bigfont!=big) {
+    bigfont=big;
+    set_fontsize(big);
+//     pty_change_window_size(terminal_fd, win.ws_row, win.ws_col, win.ws_xpixel, win.ws_ypixel);
+    ioctl(terminal_fd, TIOCSWINSZ, &win); /*Announce new screen size*/
+
+  }
+}
+
+void set_fontsize(int big) {
+  /* Fontgroesse etc anpassen */
+  if(big) {
+    CharWidth=CharWidth816;
+    CharHeight=CharHeight816;
+  } else {
+    CharWidth=CharWidth57;
+    CharHeight=CharHeight57;
+  }
+  /* Setze information fuer terminals */
+  win.ws_row=vinfo.yres/CharHeight;
+  win.ws_col=vinfo.xres/CharWidth;
 }
 
 extern int rotatets,keyboardlayout;
@@ -155,7 +183,7 @@ int main(int argc, char** argv) {
   static int areadefined=0;
   struct timeval tv;
   static char *default_shell="/bin/sh";
-  int DoExit=0,doexec=0,noclear=0;
+  int DoExit=0,doexec=0,noclear=0,dotest=0;
 
   char *arg[argc+1];         /* we pass in maximum argc values */
   int anzarg=1;
@@ -163,16 +191,21 @@ int main(int argc, char** argv) {
   OBJECT *objects=keyboard_objects;
 
   /* Initialisierungen */
-
   TsScreen_Init();
-  FbRender_Open();
+  Fb_Open();
   gem_init();
 
-  cutbuffer=malloc(AnzLine*(LineLen+1)+1);
+  cutbuffer=malloc(AnzLine*(LineLen+1)+1); /*Hier wird mit dem kleinen Font gerechnet.*/
 
+  /* Setze information fuer terminals */
+
+  win.ws_xpixel=vinfo.xres;
+  win.ws_ypixel=vinfo.yres;
+  win.ws_row=vinfo.yres/CharHeight;
+  win.ws_col=vinfo.xres/CharWidth;
 
   /* Now processing the commandline */
-  printf("Processing command line.\n");
+  printf("Processing commandline...\n");
 
   if(argc>1) {
     int count;
@@ -184,8 +217,11 @@ int main(int argc, char** argv) {
 	usage();
         DoExit=1;
       } else if (strcmp(argv[count],"--exec")==0) doexec=1;
+      else if (strcmp(argv[count],"--test")==0) dotest=1;
       else if (strcmp(argv[count],"--noclear")==0) noclear=1;
       else if (strcmp(argv[count],"--rotatets")==0) rotatets=1;
+      else if (strcmp(argv[count],"--bigfont")==0) bigfont=1;
+      else if (strcmp(argv[count],"--bigkeys")==0) bigkeys=1;
       else if (strcmp(argv[count],"--keyboardlayout_en")==0) keyboardlayout=1; /* 1 means us */
       else if (strcmp(argv[count],"--login")==0) {
         count++;
@@ -203,29 +239,31 @@ int main(int argc, char** argv) {
   while(TsScreen_pen(&x,&y,&pen)) ; /* flush pen input */
   if(noclear==0) Fb_Clear(0,ScreenHeight,BLACK);   /* clear screen */
 
+  set_fontsize(bigfont);   /* Fontgroesse  anpassen */
+
   /* Wenn gewuenscht: Keyboard-layout aendern...*/
   if(keyboardlayout) objects=keyboard_objects_en;
+
+  /* Jetzt Keyboard initialisieren und Positionen relozieren */
+  keyboard_init(objects);
 
   intro();    /* Splash Message ausgeben */
 
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033c\033[7m      Shell-Access on the TomTom V.1.12        \033[m\n           (c) Markus Hoffmann   2007-2010      \n");
-  sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
+  g_outs("\033c\033[7m   Shell-Access on the TomTom V." VERSION "    \033[m\n        (c) Markus Hoffmann   2007-2010\n");
+  sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d\n" 
+                           "      ->           %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);
 
-  /* Setze information fuer terminals */
-
-  win.ws_row=vinfo.yres/CharHeight;
-  win.ws_col=vinfo.xres/CharWidth;
-  win.ws_xpixel=vinfo.xres;
-  win.ws_ypixel=vinfo.yres;
 
   /* Place keyboard to upper right corner */
-  objects[0].ob_x=vinfo.xres-keyboard_objects[0].ob_width;
-
+  objects[0].ob_x=vinfo.xres-objects[0].ob_width;
+  objects[0].ob_y=3; /*not to underwrite screen with outline box */
+  if(vinfo.xres>objects[0].ob_width+6) objects[0].ob_x-=3;
+ 
 /* Zuerst stdin und stdout umleiten */
   
   printf("Starting the shell %s\n",arg[0]);
@@ -236,10 +274,40 @@ int main(int argc, char** argv) {
     while (TsScreen_pen(&x,&y,&pen));
     while (!TsScreen_pen(&x,&y,&pen)) ; 
     while (TsScreen_pen(&x,&y,&pen));  
-    FbRender_Close();
+    Fb_Close();
     TsScreen_Exit();
     exit(EX_OSERR);
   }     
+
+
+  if(dotest) {
+    int i,j,dptr;
+    char buffer[80];
+    for(i=0;i<16;i++) {
+      sprintf(buffer,"0x%02x: ",i);
+      g_outs(buffer);
+      for(j=0;j<16;j++) {
+        sprintf(buffer,"%02x ",i*16+j);
+        g_outs(buffer);
+      }
+      for(j=0;j<16;j++) {
+        if(i*16+j>0 && i*16+j!=27 && i*16+j!=26&& i*16+j!=8&& i*16+j!=16) {
+          sprintf(buffer,"%c ",(char)(i*16+j));
+        } else {
+	  sprintf(buffer,". ");
+	}
+          g_outs(buffer);
+      }
+      g_outs("\n");
+    }
+    objc_draw(objects,0,-1,0,0);
+    dptr=open("intro.ans",O_RDONLY);
+    if(dptr!=-1) {
+      while(read(dptr,buffer,1)) g_out(*buffer);
+      close(dptr);
+    }
+  }
+  
 
 
   int cc=0;
@@ -251,6 +319,8 @@ int main(int argc, char** argv) {
   FD_ZERO (&active_fd_set);
   FD_SET (tsfd, &active_fd_set); 
   FD_SET (terminal_fd, &active_fd_set); 
+
+  printf("Draw object tree.\n");
 
   objc_draw(objects,BUT_KEYB,BUT_KEYB,objects[0].ob_x,objects[0].ob_y);
 
@@ -274,7 +344,7 @@ int main(int argc, char** argv) {
         while (TsScreen_pen(&x,&y,&pen));
         while (!TsScreen_pen(&x,&y,&pen)); 
         while (TsScreen_pen(&x,&y,&pen));     
-	FbRender_Close();
+	Fb_Close();
         TsScreen_Exit();
         exit(EX_OSERR);
       } else {
@@ -318,6 +388,7 @@ int main(int argc, char** argv) {
 	        }
 	      } /*else {sprintf(buffer,"Touched object #%d\n",sel);g_outs(buffer);}*/
 	    } else {  /* pen=0 */
+	//      usleep(100000); /*10ms Keboardrepeat-Verzoegerung fuer neuere Modelle*/
 	      if(objects[sel].ob_flags & EXIT) {
   	        if(sel==BUT_RETURN)         {
 		  if(objects[BUT_CTRL1].ob_state&SELECTED||objects[BUT_CTRL2].ob_state&SELECTED) 
@@ -384,6 +455,19 @@ int main(int argc, char** argv) {
                   textscreen_redraw(0,0,ScreenWidth/CharWidth,11);      
 		  cursor_onoff(1,col*CharWidth,lin*CharHeight);
 		  hideit=1;
+	        } else if(sel==BUT_MENU) {
+                  g_outs("MENU-Function:\n");
+		  change_fontsize(!bigfont);
+		  g_out(27);g_outs("[H");
+		  if(!bigfont) g_outs("Small font activated.\n");
+		  else {
+                    col=min(col,LineLen-1);
+                    lin=min(lin,AnzLine-1);
+		    g_outs("Big font activated.\n");
+                  }
+		  sprintf(buffer,"%dx%d characters.\n",LineLen,AnzLine);
+		  g_outs(buffer);
+		  hideit=1;
 		} else {
 		  c=*(char *)objects[sel].ob_spec;
 		  if(objects[BUT_SHIFT1].ob_state&SELECTED ||objects[BUT_SHIFT2].ob_state&SELECTED) {
@@ -413,13 +497,13 @@ int main(int argc, char** argv) {
 	      char buffer[32];
 	      static int click=-1;
               if(click!=clickcount) {
-                if(pen) Fb_BlitText(0,0,RED,BLACK,"TTconsole: CLICK ");
-                else Fb_BlitText(0,0,RED,BLACK,"TTconsole: RELEASE ");
+                if(pen) Fb_BlitText57(0,0,RED,BLACK,"TTconsole: CLICK ");
+                else Fb_BlitText57(0,0,RED,BLACK,"TTconsole: RELEASE ");
 		sprintf(buffer,"\033[%d;%d;%dM",x,y,(pen!=0));
 		write(terminal_fd,buffer,strlen(buffer));
                 click=clickcount;
 	      } else {
-                Fb_BlitText(0,10,RED,BLACK,"TTconsole: rush... ");
+                Fb_BlitText57(0,10,RED,BLACK,"TTconsole: rush... ");
 	        sprintf(buffer,"\033[%d;%d;%do",x,y,(pen!=0));
 		write(terminal_fd,buffer,strlen(buffer));
 	      }
@@ -431,7 +515,7 @@ int main(int argc, char** argv) {
 	        c=x/CharWidth;
 	        l=y/CharHeight;
 	        if(click!=clickcount) {
-                  Fb_BlitText(0,0,RED,BLACK,"TTconsole: CLICK ");
+                  Fb_BlitText57(0,0,RED,BLACK,"TTconsole: CLICK ");
 	          if(areadefined) {
 	            /* alte copyarea loeschen */
 	            int j;
@@ -442,7 +526,7 @@ int main(int argc, char** argv) {
                   }
 	          copyareastart=c+l*(ScreenWidth/CharWidth);
 	          sprintf(buffer,"Areastart=%d.  ",copyareastart);
-	          Fb_BlitText(0,20,RED,BLACK,buffer);
+	          Fb_BlitText57(0,20,RED,BLACK,buffer);
                   click=clickcount;
 	        } else {
 	          if(areadefined) {
@@ -455,7 +539,7 @@ int main(int argc, char** argv) {
                   }
 	          copyareaend=max(copyareastart+1,c+l*(ScreenWidth/CharWidth));
 	          sprintf(buffer,"Areaend=%d.  ",copyareaend);
-	          Fb_BlitText(0,30,RED,BLACK,buffer);
+	          Fb_BlitText57(0,30,RED,BLACK,buffer);
                   /* area invertieren */
 	          int j;
 	          for(j=copyareastart;j<=copyareaend;j++) {
@@ -476,7 +560,7 @@ int main(int argc, char** argv) {
 	          }
                   cutbuffer[i]=0;
 	          sprintf(buffer,"%d bytes in cutbuffer.",i);
-	          Fb_BlitText(0,20,RED,BLACK,buffer);
+	          Fb_BlitText57(0,20,RED,BLACK,buffer);
 	        }
 	      }
 	    }
@@ -501,7 +585,7 @@ int main(int argc, char** argv) {
     }
   }  
   free(cutbuffer);
-  FbRender_Close();
+  Fb_Close();
   TsScreen_Exit();
   return(EX_OK);
 }

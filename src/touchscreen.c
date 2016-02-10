@@ -29,8 +29,15 @@
 #include "terminal.h"
 
 #define TS_DEVICENAME1 "/dev/ts"
-#define TS_DEVICENAME2 "/dev/input/event0"
 
+#ifndef NATIVE
+#define TS_DEVICENAME2 "/dev/input/event0"
+#else
+//#define TS_DEVICENAME2 "/dev/mouse"
+#define TS_DEVICENAME2 "/dev/input/mouse0"
+#endif
+
+#define EV_SYN			0x00
 
 int tsfd = -1;
 
@@ -54,6 +61,11 @@ static MATRIX2 ts_matrix;
 //        unsigned int value;
 //};
 
+typedef struct {
+  unsigned char but;
+  signed char dx;
+  signed char dy;
+} MOUSE_EVENT;
 
 
 void TsScreen_Init() {
@@ -76,34 +88,49 @@ void TsScreen_Init() {
       FILE *cal_file=fopen("/mnt/flash/sysfile/cal","rb");
       if((cal_file==NULL) || (fread(&ts_matrix.xMin, sizeof(int),4,cal_file)!=4)) {
         printf("Error reading calibration file!\n");
-//        close(tsfd);
-//        tsfd=-1;
       }
-      fclose(cal_file);
+      if(cal_file!=NULL) fclose(cal_file);
     }
+#ifndef NATIVE
   } else ioctl(tsfd,TS_SET_RAW_OFF,NULL);
-  if(tsfd!=-1) printf("Touchscreen device successfully opened.\n");
+#else
+  }
+#endif
+  if(tsfd!=-1) printf("Touchscreen device successfully opened. Eventmode=%d.\n",eventmode);
 }
 
-TS_EVENT new_event;
+static TS_EVENT new_event;
 
 int TsScreen_read() {
   if(tsfd<0) return 0;
   if(eventmode) {
+#ifndef NATIVE
     struct input_event ev2;
     int retval=read(tsfd,&ev2,sizeof(struct input_event))==sizeof(struct
                 input_event)?1:0;
+printf("TS-Read: ");
+    if(new_event.pressure!=0xffff) {
+      new_event.pressure=0xffff;
+      printf(" RESET ");
+    }
     while(retval) {
-      printf("ts_event: typ=%d code=%d value=%d \n",ev2.type,ev2.code,ev2.value);
-      if(ev2.type==EV_ABS && ev2.code==ABS_X) {
+#else
+    MOUSE_EVENT ev2;
+    int retval=read(tsfd,&ev2,sizeof(MOUSE_EVENT))==sizeof(
+                MOUSE_EVENT)?1:0;
+    while(retval || 1) {
+      printf("mouse_event: but=%d dx=%d dy=%d \n",ev2.but,ev2.dx,ev2.dy);
+#endif
+#ifndef NATIVE
+      if(ev2.type==EV_SYN) printf(" SYN ");
+      else if(ev2.type==EV_ABS && ev2.code==ABS_X) {
         new_event.x=ev2.value;
         new_event.x=(((new_event.x-ts_matrix.xMin)*(vinfo.xres-30))/(ts_matrix.xMax-ts_matrix.xMin))+15;
 //        if(new_event.x<0) new_event.x=0;
 //        else 
 	if (new_event.x>vinfo.xres) new_event.x=vinfo.xres;
         new_event.x=vinfo.xres-new_event.x;
-printf("Xcal=%d\n",new_event.x);
-          if(new_event.y!=0xffff) return 1; // -> full dataset.
+printf("x=%d ",new_event.x);
       } else if (ev2.type==EV_ABS && ev2.code==ABS_Y) {
          new_event.y=ev2.value;
          new_event.y=(((new_event.y-ts_matrix.yMin)*(vinfo.yres-30))/(ts_matrix.yMax-ts_matrix.yMin))+15;
@@ -111,22 +138,31 @@ printf("Xcal=%d\n",new_event.x);
 //        else 
 	if (new_event.y>vinfo.yres) new_event.y=vinfo.yres;
         new_event.y=vinfo.yres-new_event.y;
-printf("Ycal=%d\n",new_event.y);
-        if(new_event.x!=0xffff) return 1; // -> full dataset.
+printf("y=%d ",new_event.y);
+      } else if(ev2.type==EV_ABS && ev2.code==ABS_PRESSURE) {
+        new_event.pressure=ev2.value;
+printf("Pres=%d\n",new_event.pressure);
+        if(new_event.x!=0xffff && new_event.y!=0xffff) break; // -> full dataset.
       } else if(ev2.type==EV_KEY && ev2.code==BTN_TOUCH) {
         if(ev2.value) {
           new_event.pressure=255;
-          new_event.x=0xffff; // Reset...
-          new_event.y=0xffff;
-        } else {
-          new_event.pressure=0;
-          return 1; // button-release -> another full dataset.
-        }
+        } else new_event.pressure=0;
+ printf("touch=%d\n",ev2.value);
+       
+	if(new_event.x!=0xffff && new_event.y!=0xffff) break; // -> full dataset.       
+      } else {
+        printf("unknown input_event: typ=%d code=%d value=%d \n",ev2.type,ev2.code,ev2.value);
       }
       retval=read(tsfd,&ev2,sizeof(struct input_event))==sizeof(struct input_event)?1:0;
+#else
+      retval=read(tsfd,&ev2,sizeof(MOUSE_EVENT))==sizeof(MOUSE_EVENT)?1:0;
+#endif
     }
+    fflush(stdout);
+    printf("TSREAD--> %d\n",retval);
     return retval;
   } else {    
+#ifndef NATIVE
     static int have_previous = 0;
     static TS_EVENT prev_event;
     int read_len;
@@ -142,11 +178,11 @@ printf("Ycal=%d\n",new_event.y);
     memcpy(&new_event, &prev_event,sizeof(TS_EVENT));
     have_previous = 0;
     return 1;
+#endif
   }
 }
 
 int TsScreen_pen(int *x,int *y,int *pen) {
-
   if(TsScreen_read()==0) return 0;
 
   if(rotatets) {

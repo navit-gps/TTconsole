@@ -64,3 +64,13 @@ Release notes for Version 1.12 (Feb 2010)
 * Changed directory structure
 * new dogfeed utility
 
+Release notes for Version 1.13 (Oct 2010)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* added --bigfont option and 8x16 bigger font
+* extended the charackter set for 5x7 font
+* added new (debug) option --test
+* moved keyboard by 3 pixels down
+* Scaled the big keyboard down to 80%
+* added commandline option --bigkeys
+* Pressing the MENU button will switch between big and small font
+* introduced keyboard repeat slowdown.

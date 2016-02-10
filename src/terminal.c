@@ -16,6 +16,8 @@
 #include "screen.h"
 #include "consolefont.h"
 
+#define MAXANZNUMBERS 18
+
 int terminal_fd=-1;   /* File descriptor for connection to shell */
 
 CINFO textscreen[80*160];
@@ -23,6 +25,10 @@ CINFO textscreen[80*160];
 int col=0,lin=0;
 int tcolor=YELLOW,tbcolor=BLACK;
 int attributes=AT_DEFAULT;
+extern int CharWidth;
+extern int CharHeight;
+
+void change_fontsize(int big);
 
 void cursor_onoff(int onoff,int x,int y) {
   static int cursor=0;
@@ -68,9 +74,9 @@ void textscreen_redraw(int x, int y, int w,int h){
     for(j=x;j<x+w;j++) {
       if(textscreen[i*LineLen+j].c) Fb_BlitCharacter(j*CharWidth,i*CharHeight,
       textscreen[i*LineLen+j].color,textscreen[i*LineLen+j].bcolor, 
-      textscreen[i*LineLen+j].c,textscreen[i*LineLen+j].flags);
+      textscreen[i*LineLen+j].c,textscreen[i*LineLen+j].flags,textscreen[i*LineLen+j].fontnr);
       else Fb_BlitCharacter(j*CharWidth,i*CharHeight,
-      textscreen[i*LineLen+j].color,textscreen[i*LineLen+j].bcolor,' ',0);
+      textscreen[i*LineLen+j].color,textscreen[i*LineLen+j].bcolor,' ',0,0);
     }
   }
 }
@@ -104,38 +110,27 @@ void g_insertchar() {
   FillBox(col*CharWidth,lin*CharHeight,CharWidth*1,CharHeight,tbcolor);
 }
 
-void g_terminal_error(char a,int escflag) {
+void g_terminal_error(unsigned char a,int escflag) {
   char buffer[100];
-  int ocolor=tcolor;
   if(escflag==0) {
-    sprintf(buffer,"<%d>",a);
+    sprintf(buffer,"TTconsole-terminal-emulation: ERROR: %d",a);
   } else if(escflag==1) {
     sprintf(buffer,"TTconsole-terminal-emulation: ERROR: ESC-%d",a);
-    Fb_BlitText(0,0,RED,BLACK,buffer);
-    sprintf(buffer,"<ESC-%d>",a);
   } else if(escflag==2) {
     sprintf(buffer,"TTconsole-terminal-emulation: ERROR: ESC-[-%d",a);
-    Fb_BlitText(0,0,RED,BLACK,buffer);
-    sprintf(buffer,"<ESC-[-%d>",a);
   } else if(escflag==3) {
     sprintf(buffer,"TTconsole-terminal-emulation: ERROR: ESC-[-?-%d",a);
-    Fb_BlitText(0,0,RED,BLACK,buffer);
-    sprintf(buffer,"<ESC-[-?-%d>",a);
   } else {
-    sprintf(buffer,"TTconsole-terminal-emulation: ERROR: CODE=%d",a);
-    Fb_BlitText(0,0,RED,BLACK,buffer);
-    sprintf(buffer,"<CODE=%d>",a);
+    sprintf(buffer,"TTconsole-terminal-emulation: ERROR: CODE=%d, flag=%d",a,escflag);
   }
-  tcolor=MAGENTA;
-  g_outs(buffer);
-  tcolor=ocolor;  
+  Fb_BlitText57(0,0,RED,BLACK,buffer);
 }
 
 /* Terminalroutines, (c) Markus Hoffmann, all rights reserved */
-void g_out(char a) {
-  static int chw=CharWidth,chh=CharHeight;
+void g_out(unsigned char a) {
+  int chw=CharWidth,chh=CharHeight;
   static int escflag=0;
-  static int numbers[16];
+  static int numbers[MAXANZNUMBERS];
   static int anznumbers;
   static int flags=0;
   static int scroll_region_1=0;
@@ -151,6 +146,8 @@ void g_out(char a) {
       textscreen_clear(0,AnzLine);
       scroll_region_2=AnzLine;
       scroll_region_1=0;
+      cursor_saved_x=cursor_saved_y=0;
+      cursor_saved_flags=FL_NORMAL;
       Fb_Clear(0,ScreenHeight,tbcolor);
       tcolor=LIGHTGREY;tbcolor=BLACK;flags=FL_NORMAL;attributes=AT_DEFAULT;
       cursor_onoff(1,col*chw,lin*chh); 
@@ -194,32 +191,42 @@ void g_out(char a) {
       escflag=0;
     } else if(a=='Z') {/* DECID:Identify Terminal (ANSI mode)*/
       if(terminal_fd!=-1) {int c=27;write(terminal_fd,&c,1);write(terminal_fd,"[?6c",4);}
+      escflag=0;
     } else if(a=='=') {/* Keypad application mode */
       numlock=1;
+      escflag=0;
+    } else if(a=='<') {/* Exit VT52 mode  */
+      escflag=0;
     } else if(a=='>') {/* Keypad numeric mode */
       numlock=0;
+      escflag=0;
     } else if(a=='[') {/* more parameters follow */
       escflag=2;
       number=anznumbers=0;
-    } else g_terminal_error(a,escflag);
+    } else {
+      g_terminal_error(a,escflag);
+      escflag=0;
+    }
   } else if(escflag>=2) {
     if(a==';') {
-      if(anznumbers<15) numbers[anznumbers++]=number;
+      if(anznumbers<MAXANZNUMBERS) numbers[anznumbers++]=number;
       number=0;
     } else if(a=='?') {
       escflag++;
     } else if(a>='0' && a<='9') {
       number=number*10+(a-'0');
     } else {
-      escflag=0;
-      if(anznumbers<15)  numbers[anznumbers++]=number;
+      if(anznumbers<MAXANZNUMBERS)  numbers[anznumbers++]=number;
       if(a=='m') {
 	  int i,f;
 	  for(i=0;i<anznumbers;i++) {
 	    f=numbers[i];
 	    if(f==0) {flags=0;tcolor=LIGHTGREY;tbcolor=BLACK;}
-	    else if(f<10) flags|=(1<<f);
-	    else if(f>20 && f<30) flags&=~(1<<(f-20));
+	    else if(f<10) flags|=(1<<(f-1));
+	    else if(f==10) fontnr=0; /*Use default font*/
+	    else if(f>10 && f<20) fontnr=(f-10); /* use alternate font */
+	    else if(f==20) ; /* Use fraktur */
+	    else if(f>20 && f<30) flags&=~(1<<(f-21));
 	    else if(f==30) tcolor=BLACK;
 	    else if(f==31) tcolor=RED;
 	    else if(f==32) tcolor=GREEN;
@@ -238,24 +245,44 @@ void g_out(char a) {
 	    else if(f==46) tbcolor=LIGHTBLUE;
 	    else if(f==47) tbcolor=WHITE;
 	    else if(f==49) tbcolor=BLACK;   /* set to default */
+	    else if(f==51) flags|=FL_FRAMED;
+	    else if(f==54) flags&=~FL_FRAMED;
 	    else g_terminal_error((char)f,5);
 	  }
+      } else if(a=='z') {
+	  char *p;
+	  int i;
+	  unsigned char c=(unsigned char)numbers[0];
+	  p=&ext_font816[c*CharHeight816];
+	  for(i=1;i<anznumbers;i++) {
+	    *p++=(unsigned char)numbers[i];
+	  }
       } else if(a=='h') {
-	  int i,f;
-	  for(i=0;i<anznumbers;i++) {
- 	    f=numbers[i];
-	    if(f==0) attributes=AT_DEFAULT; 
-            else if(f<30) attributes|=(1<<f);
-	    else g_terminal_error((char)f,6);
-	  }   
+          if(escflag==3 && anznumbers>0 && numbers[0]==3) { /*Action: Set terminal to 136 column mode */
+            change_fontsize(0);
+	  } else {  /*Collect attributes*/
+	    int i,f;
+	    for(i=0;i<anznumbers;i++) {
+ 	      f=numbers[i];
+	      if(f==0) attributes=AT_DEFAULT; 
+              else if(f<30) attributes|=(1<<f);
+	      else g_terminal_error((char)f,6);
+	    }
+	  }
       } else if(a=='l') {
-	  int i,f;
-	  for(i=0;i<anznumbers;i++) {
- 	    f=numbers[i];
-	    if(f==0) attributes=AT_DEFAULT; 
-            else if(f<30) attributes&=(~(1<<f));
-	    else g_terminal_error((char)f,6);
-	  }   
+          if(escflag==3 && anznumbers>0 && numbers[0]==3) { /*Action: Set terminal to 80 column mode */
+            col=min(col,LineLen-1);
+            lin=min(lin,AnzLine-1);
+            change_fontsize(1);
+	  } else {  /*Collect attributes*/
+	    int i,f;
+	    for(i=0;i<anznumbers;i++) {
+ 	      f=numbers[i];
+	      if(f==0) attributes=AT_DEFAULT; 
+              else if(f<30) attributes&=(~(1<<f));
+	      else g_terminal_error((char)f,6);
+	    }
+          }
       } else if(a=='A') { /* cursor up pn times - stop at top */
         cursor_onoff(0,col*chw,lin*chh);
 	lin=max(0,lin-max(numbers[0],1));
@@ -328,6 +355,10 @@ void g_out(char a) {
 	  }
 	}
 	cursor_onoff(1,col*chw,lin*chh);
+      } else if(a=='G') {  /*set cursor horizontal absolute*/
+        cursor_onoff(0,col*chw,lin*chh);
+	if(anznumbers>=1 && numbers[0]!=0) {col=numbers[0];}
+	cursor_onoff(1,col*chw,lin*chh);
       } else if(a=='J') {
         cursor_onoff(0,col*chw,lin*chh);
         if(numbers[0]==0) {
@@ -371,6 +402,7 @@ void g_out(char a) {
       } else {
         g_terminal_error(a,escflag);
       }
+      escflag=0;
     }
   } else {
     cursor_onoff(0,col*chw,lin*chh);
@@ -382,23 +414,25 @@ void g_out(char a) {
     else if(a==13) {
       col=0;
       if(attributes&AT_AUTOLF) g_linefeed();
-    } else if(a==14) ;  /* Invoke G1 character set. */
-    else if(a==15) ;  /* Invoke G0 character set. */
+    } else if(a==14) fontnr=1;  /* Invoke G1 character set. */
+    else if(a==15) fontnr=0;    /* Invoke G0 character set. */
+    else if(a==16) fontnr=2;    /* Invoke extended character set. */
     else if(a==24 || a==26) escflag=0;  /* CANCEL */
     else if(a==27) escflag++; 
-    else if(a>=32 && a<127) {
+    else {
       if(attributes&AT_INSERT) g_insertchar();
-      Fb_BlitCharacter(col*chw,lin*chh,tcolor,tbcolor, a,flags);      
+      Fb_BlitCharacter(col*chw,lin*chh,tcolor,tbcolor, a,flags,fontnr);      
       textscreen[lin*LineLen+col].c=a;
       textscreen[lin*LineLen+col].color=tcolor;
       textscreen[lin*LineLen+col].bcolor=tbcolor;
       textscreen[lin*LineLen+col].flags=flags;
+      textscreen[lin*LineLen+col].fontnr=fontnr;
       col++;
       if(col>=LineLen) {
 	if(attributes&AT_LINEWRAP) {col=0; g_linefeed();}
         else col=LineLen-1;
       }
-    } else g_terminal_error(a,escflag);
+    }
     cursor_onoff(1,col*chw,lin*chh);
   }
 }

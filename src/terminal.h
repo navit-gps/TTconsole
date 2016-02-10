@@ -7,7 +7,7 @@
  * COPYING for details
  */
 
-void g_out(char a);
+void g_out(unsigned char a);
 void g_outs(char *t);
 void cursor_onoff(int onoff,int x,int y);
 void textscreen_redraw(int x,int y,int w,int h);
@@ -20,6 +20,7 @@ typedef struct {
 	unsigned short color;
 	unsigned short bcolor;
 	unsigned char flags;
+	unsigned char fontnr;
 } CINFO;
 
 

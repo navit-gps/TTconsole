@@ -37,7 +37,10 @@
 #define YELLOW 6
 #define MAGENTA 7
 
-int chw=5,chh=8;
+extern int bigkeys;
+#define chw (bigkeys?CharWidth816:CharWidth57)
+#define chh (bigkeys?CharHeight816:CharHeight57)
+
 
 const struct { unsigned short r,g,b;} gem_colordefs[]={
 {65535,65535,65535},  /* WHITE */
@@ -59,10 +62,17 @@ const struct { unsigned short r,g,b;} gem_colordefs[]={
 };
 
 int gem_colors[16];
-
 int border;
-
 ARECT sbox;
+
+OBJECT menu_objects[4]={
+/* 0*/  {-1,1,3,G_BOX, NONE, OUTLINED, 0x00021100, 0,0,20,7},
+/* 1*/  {2,-1,-1,G_BUTTON, SELECTABLE|DEFAULT|EXIT,NORMAL ,(LONG)"OK", 15,4,4,2},
+/* 2*/  {3,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"CANCEL",    15,6,4,2},
+/* 3*/  {0,-1,-1,G_STRING,NONE|LASTOB, NORMAL, (LONG)"Settings:", 2,3,2,1}
+};
+
+
 
 
 int get_color(int r, int g, int b) {
@@ -241,6 +251,7 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
     randdicke=0;
     break;
   case G_STRING:
+  case G_STRINGSMALL:
   case G_TITLE:
     randdicke=0;
     if(tree[idx].ob_state & SELECTED) {
@@ -251,6 +262,7 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
      }
     break;
   case G_BUTTON:
+  case G_BUTTONSMALL:
     randdicke=-1;
     fillcolor=WHITE;
     pattern=9;
@@ -325,12 +337,21 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
   case G_TITLE:
     text=(char *)((int)tree[idx].ob_spec);
     DrawString(obx,oby+chh-2,text,strlen(text));
+    break;
+  case G_STRINGSMALL:
+    text=(char *)((int)tree[idx].ob_spec);
+    DrawStringSmall(obx,oby+6,text,strlen(text));
+    break;
   case G_BOX:
   case G_IBOX:
     break;
   case G_BUTTON:
     text=(char *)((int)tree[idx].ob_spec);
-    DrawString(obx+(obw-chw*strlen(text))/2,oby+chh-2+(obh-chh)/2,text,strlen(text));
+    DrawString(obx+(signed)(obw-chw*strlen(text))/2,oby+chh-2+(obh-chh)/2,text,strlen(text));
+    break;
+  case G_BUTTONSMALL:
+    text=(char *)((int)tree[idx].ob_spec);
+    DrawStringSmall(obx+1+(signed)(obw-CharWidth57*strlen(text))/2,oby+7+(obh-CharHeight57)/2,text,strlen(text));
     break;
   case G_BOXCHAR:
     DrawString(obx+(obw-chw)/2,oby+chh-2+(obh-chh)/2,&zeichen,1);
@@ -413,7 +434,7 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
     /* Icon-Text */
     load_GEMFONT(FONT_SMALL);
 #endif
-    DrawString(obx+bit->ib_xtext,oby+bit->ib_ytext+bit->ib_htext,(char *)*(LONG *)&bit->ib_ptext,strlen((char *)*(LONG *)&bit->ib_ptext));
+    DrawStringSmall(obx+bit->ib_xtext,oby+bit->ib_ytext+bit->ib_htext,(char *)*(LONG *)&bit->ib_ptext,strlen((char *)*(LONG *)&bit->ib_ptext));
     /* Icon char */
 #if 0
     load_GEMFONT(1);
@@ -488,4 +509,15 @@ void draw_edcursor(OBJECT *tree,int ndx){
   y+chh+4);
   SetForeground(gem_colors[BLACK]);
 }
+
+int form_center(OBJECT *tree, int *x, int *y, int *w, int *h) {
+  tree->ob_x=sbox.x+(sbox.w-tree->ob_width)/2;
+  tree->ob_y=sbox.y+(sbox.h-tree->ob_height)/2;
+  *x=tree->ob_x;
+  *y=tree->ob_y;
+  *w=tree->ob_width;
+  *h=tree->ob_height;
+  return(0);
+}
+
 

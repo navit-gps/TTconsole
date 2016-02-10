@@ -19,6 +19,7 @@
 #define FillRectangle(a,b,c,d) pbox(a,b,a+c,b+d)
 #define DrawRectangle(a,b,c,d) box(a,b,a+c,b+d)
 #define DrawString(a,b,c,d)    mtext(a,b-chh+2,c);
+#define DrawStringSmall(a,b,c,d)    mtextsmall(a,b-6,c);
 #define DrawLine(a,b,c,d)      line(a,b,c,d)
 #define DrawPoint(a,b)         plot(a,b)
 #define CopyArea(a,b,c,d,e,f) ;
@@ -142,6 +143,8 @@ typedef struct objc_colorword {
 #define G_FBOXTEXT 30
 #define G_ICON 31
 #define G_TITLE 32
+#define G_STRINGSMALL 33
+#define G_BUTTONSMALL 34
 #define G_ALERTTYP 42
 						/* Object flags		 */
 #define NONE 0x0

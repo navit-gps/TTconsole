@@ -8,6 +8,7 @@
  * COPYING for details
  */
 
+#define VERSION "1.13"
 
 
 /* Button number Definitions corresponding to Object tree */
@@ -28,8 +29,9 @@
 #define BUT_SHIFT2 57
 #define BUT_CTRL1 58
 #define BUT_CTRL2 65
-#define BUT_ALTG 62
+#define BUT_ALTG  62
 #define BUT_PASTE 63
+#define BUT_MENU  64
 #define BUT_CUR_UP 69
 #define BUT_CUR_DOWN 67
 #define BUT_CUR_RIGHT 68
@@ -50,9 +52,12 @@
 
 extern OBJECT keyboard_objects[];
 extern OBJECT keyboard_objects_en[];
+extern int keyboard_objccount;
+extern int bigkeys;
 
 
 char shift_translation(char c);
 char caps_translation(char c);
 char altGr_translation(char c);
 
+void keyboard_init(OBJECT *objects);
