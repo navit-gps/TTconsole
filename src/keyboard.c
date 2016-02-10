@@ -1,4 +1,4 @@
-/* keyboard.c                            (c) Markus Hoffmann  2007-2008
+/* keyboard.c                            (c) Markus Hoffmann  2007-2011
 */
 
 /* This file is part of TTconsole, the TomTom Console interface

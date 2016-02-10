@@ -1,5 +1,5 @@
 
-/* TTconsole.c                            (c) Markus Hoffmann  2007-2010
+/* TTconsole.c                            (c) Markus Hoffmann  2007-2011
 */
 
 /* This file is part of TTconsole, the TomTom Console interface
@@ -98,7 +98,7 @@ int spawn (char *argv[]) {
 #endif
     
     
-    printf("Shell-Access on the TomTom\n          (c) Markus Hoffmann   2007-2010\n");
+    printf("Shell-Access on the TomTom\n          (c) Markus Hoffmann   2007-2011\n");
     printf("\nstdin=%d, stdout=%d\n",STDIN_FILENO,STDOUT_FILENO);
     /* This should now already work */
     printf("The child is now going to excecute the shell!\n");
@@ -171,6 +171,69 @@ void set_fontsize(int big) {
   win.ws_col=vinfo.xres/CharWidth;
 }
 
+static int areadefined=0;
+static int copyareastart;
+static int copyareaend;
+
+static void clear_cutarea() {
+  if(areadefined) {
+    /* alte copyarea loeschen */
+    int j;
+    for(j=copyareastart;j<=copyareaend;j++) {
+      Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+    }
+    areadefined=0;
+  }
+}
+static void redraw_cutarea() {
+  int j;
+  if(areadefined) clear_cutarea(); /* alte copyarea loeschen */
+  /* area invertieren */
+  for(j=copyareastart;j<=copyareaend;j++) {
+    Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
+  }
+  areadefined=1;
+}
+void draw_message(int z,char *b) {
+  Fb_BlitText57(0,z*10,RED,BLACK,b);
+  puts(b);
+}
+
+#define log_message(b) puts(b)
+
+static OBJECT *objects=keyboard_objects;
+
+/* Test-Routine der Zeichenausgabe. Es wird der Zeichensatz ausgegeben und das
+   Keyboard dargestellt. Wenn eine datei intro.ans vorhanden ist, wird diese 
+   angezeigt. */
+
+static void screen_test() {
+  int i,j,dptr;
+  char buffer[80];
+  log_message("Doing screen-test.");
+  for(i=0;i<16;i++) {
+    sprintf(buffer,"0x%02x: ",i);
+    g_outs(buffer);
+    for(j=0;j<16;j++) {
+      sprintf(buffer,"%02x ",i*16+j);
+      g_outs(buffer);
+    }
+    for(j=0;j<16;j++) {
+      if(i*16+j>0 && i*16+j!=27 && i*16+j!=26&& i*16+j!=8&& i*16+j!=16) {
+        sprintf(buffer,"%c ",(char)(i*16+j));
+      } else sprintf(buffer,". ");
+      g_outs(buffer);
+    }
+    g_outs("\n");
+  }
+  objc_draw(objects,0,-1,0,0);
+  dptr=open("intro.ans",O_RDONLY);
+  if(dptr!=-1) {
+    while(read(dptr,buffer,1)) g_out(*buffer);  
+    close(dptr);
+  }
+}
+
 extern int rotatets,keyboardlayout;
 
 int main(int argc, char** argv) {
@@ -178,9 +241,6 @@ int main(int argc, char** argv) {
   int x=0,y=0,pen=0;
   int sel,retval;
   int clickcount=0;
-  int copyareastart;
-  int copyareaend;
-  static int areadefined=0;
   struct timeval tv;
   static char *default_shell="/bin/sh";
   int DoExit=0,doexec=0,noclear=0,dotest=0;
@@ -188,7 +248,6 @@ int main(int argc, char** argv) {
   char *arg[argc+1];         /* we pass in maximum argc values */
   int anzarg=1;
   fd_set active_fd_set,read_fd_set;
-  OBJECT *objects=keyboard_objects;
 
   /* Initialisierungen */
   TsScreen_Init();
@@ -205,7 +264,7 @@ int main(int argc, char** argv) {
   win.ws_col=vinfo.xres/CharWidth;
 
   /* Now processing the commandline */
-  printf("Processing commandline...\n");
+  log_message("Processing commandline...");
 
   if(argc>1) {
     int count;
@@ -252,7 +311,7 @@ int main(int argc, char** argv) {
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033c\033[7m   Shell-Access on the TomTom V." VERSION "    \033[m\n        (c) Markus Hoffmann   2007-2010\n");
+  g_outs("\033c\033[7m   Shell-Access on the TomTom V." VERSION "    \033[m\n        (c) Markus Hoffmann   2007-2011\n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d\n" 
                            "      ->           %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
@@ -270,7 +329,7 @@ int main(int argc, char** argv) {
   terminal_fd=spawn(arg);
   if(terminal_fd<0) {
     g_outs("Cannot spawn shell! ERROR, QUIT\n");
-    printf("Cannot spawn shell! ERROR, QUIT\n");
+    log_message("Cannot spawn shell! ERROR, QUIT.");
     while (TsScreen_pen(&x,&y,&pen));
     while (!TsScreen_pen(&x,&y,&pen)) ; 
     while (TsScreen_pen(&x,&y,&pen));  
@@ -279,36 +338,7 @@ int main(int argc, char** argv) {
     exit(EX_OSERR);
   }     
 
-
-  if(dotest) {
-    int i,j,dptr;
-    char buffer[80];
-    for(i=0;i<16;i++) {
-      sprintf(buffer,"0x%02x: ",i);
-      g_outs(buffer);
-      for(j=0;j<16;j++) {
-        sprintf(buffer,"%02x ",i*16+j);
-        g_outs(buffer);
-      }
-      for(j=0;j<16;j++) {
-        if(i*16+j>0 && i*16+j!=27 && i*16+j!=26&& i*16+j!=8&& i*16+j!=16) {
-          sprintf(buffer,"%c ",(char)(i*16+j));
-        } else {
-	  sprintf(buffer,". ");
-	}
-          g_outs(buffer);
-      }
-      g_outs("\n");
-    }
-    objc_draw(objects,0,-1,0,0);
-    dptr=open("intro.ans",O_RDONLY);
-    if(dptr!=-1) {
-      while(read(dptr,buffer,1)) g_out(*buffer);
-      close(dptr);
-    }
-  }
-  
-
+  if(dotest) screen_test();
 
   int cc=0;
   char c;
@@ -320,11 +350,11 @@ int main(int argc, char** argv) {
   FD_SET (tsfd, &active_fd_set); 
   FD_SET (terminal_fd, &active_fd_set); 
 
-  printf("Draw object tree.\n");
+  log_message("Draw object tree.");
 
   objc_draw(objects,BUT_KEYB,BUT_KEYB,objects[0].ob_x,objects[0].ob_y);
 
-  printf("Enter main loop.\n");
+  log_message("Enter main loop.");
   int hideit=0;
 
   while (!DoExit) {
@@ -339,17 +369,14 @@ int main(int argc, char** argv) {
     if(retval<0) {
       if(errno==EINTR) ; /* This is OK */
       else if(errno==EBADF) { /* This is not OK */
-        Fb_BlitText(0,0,RED,BLACK,"TTconsole: select failed! Connection to Shell lost! ");
-        printf("Connection to shell lost! ERROR, QUIT\n");
+        draw_message(0,"TTconsole: select failed! Connection to Shell lost! ");
         while (TsScreen_pen(&x,&y,&pen));
         while (!TsScreen_pen(&x,&y,&pen)); 
         while (TsScreen_pen(&x,&y,&pen));     
 	Fb_Close();
         TsScreen_Exit();
         exit(EX_OSERR);
-      } else {
-        Fb_BlitText(0,0,RED,BLACK,"TTconsole: select failed! ");
-      }
+      } else draw_message(0,"TTconsole: select failed! ");
     } else if(!retval) {
      // g_outs("++timeout!\n");
       if(doexec) DoExit=1;  /* This, probably, will also not work.  */
@@ -497,58 +524,38 @@ int main(int argc, char** argv) {
 	      char buffer[32];
 	      static int click=-1;
               if(click!=clickcount) {
-                if(pen) Fb_BlitText57(0,0,RED,BLACK,"TTconsole: CLICK ");
-                else Fb_BlitText57(0,0,RED,BLACK,"TTconsole: RELEASE ");
+                if(pen) draw_message(0,"TTconsole: >CLICK< ");
+                else    draw_message(0,"TTconsole: >RELEASE< ");
 		sprintf(buffer,"\033[%d;%d;%dM",x,y,(pen!=0));
 		write(terminal_fd,buffer,strlen(buffer));
                 click=clickcount;
 	      } else {
-                Fb_BlitText57(0,10,RED,BLACK,"TTconsole: rush... ");
+                draw_message(0,"TTconsole: rush... ");
 	        sprintf(buffer,"\033[%d;%d;%do",x,y,(pen!=0));
 		write(terminal_fd,buffer,strlen(buffer));
 	      }
 	    } else {
+              int c=x/CharWidth;
+	      int l=y/CharHeight;
 	      if (pen) {
-                int c,l;
 	        static int click=-1;
-	    
-	        c=x/CharWidth;
-	        l=y/CharHeight;
-	        if(click!=clickcount) {
-                  Fb_BlitText57(0,0,RED,BLACK,"TTconsole: CLICK ");
-	          if(areadefined) {
-	            /* alte copyarea loeschen */
-	            int j;
-	            for(j=copyareastart;j<=copyareaend;j++) {
-	              Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
-                    }
-	            areadefined=0;
-                  }
+	        if(click!=clickcount) {  /* klick ist neu */
+                  draw_message(0,"TTconsole: CLICK ");
+                  clear_cutarea(); /* alte copyarea loeschen */
 	          copyareastart=c+l*(ScreenWidth/CharWidth);
-	          sprintf(buffer,"Areastart=%d.  ",copyareastart);
-	          Fb_BlitText57(0,20,RED,BLACK,buffer);
+	          sprintf(buffer,"Areastart=%d.  ",copyareastart); draw_message(2,buffer);
                   click=clickcount;
-	        } else {
-	          if(areadefined) {
-	            /* alte copyarea loeschen */
-	            int j;
-	            for(j=copyareastart;j<=copyareaend;j++) {
-	              Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
-                    }
-	            areadefined=0;
-                  }
+	        } else { /* klick ist alt (mausbewegung) */
 	          copyareaend=max(copyareastart+1,c+l*(ScreenWidth/CharWidth));
-	          sprintf(buffer,"Areaend=%d.  ",copyareaend);
-	          Fb_BlitText57(0,30,RED,BLACK,buffer);
-                  /* area invertieren */
-	          int j;
-	          for(j=copyareastart;j<=copyareaend;j++) {
-	            Fb_inverse((j%LineLen)*CharWidth,j/LineLen*CharHeight,CharWidth,CharHeight);
-                  }
-                  areadefined=1;
+	          sprintf(buffer,"Areaend=%d.  ",copyareaend); draw_message(3,buffer);
+                  redraw_cutarea();  /* area invertieren */
 	        }
               } else {
 	        /* losgelassen, also in cutbuffer kopieren */
+	        copyareaend=max(copyareastart+1,c+l*(ScreenWidth/CharWidth));
+	        sprintf(buffer,"Areaend=%d.  ",copyareaend); draw_message(3,buffer);
+                redraw_cutarea();  /* area invertieren */
+		
                 if(areadefined) {
 	          int i=0,j;
 	          for(j=copyareastart;j<=copyareaend;j++) {
@@ -559,8 +566,7 @@ int main(int argc, char** argv) {
 		    }
 	          }
                   cutbuffer[i]=0;
-	          sprintf(buffer,"%d bytes in cutbuffer.",i);
-	          Fb_BlitText57(0,20,RED,BLACK,buffer);
+	          sprintf(buffer,"%d bytes in cutbuffer.",i); draw_message(2,buffer);
 	        }
 	      }
 	    }
@@ -574,12 +580,9 @@ int main(int argc, char** argv) {
 	else if(cc==-1) {
 	  if(errno==EINTR || errno==EAGAIN) ; /* This is OK */
           else if(errno==EBADF ||errno==EIO) { /* This is not OK */
-            Fb_BlitText(0,0,RED,BLACK,"TTconsole: read failed! Connection to Shell lost! ");
-            printf("Connection to shell lost! ERROR, QUIT\n");
+            draw_message(0,"TTconsole: read failed! Connection to Shell lost! ");
 	    DoExit=1;
-          } else {
-            Fb_BlitText(0,0,RED,BLACK,"TTconsole: read failed! ");
-          }
+          } else draw_message(0,"TTconsole: read failed! ");
 	}
       } 
     }

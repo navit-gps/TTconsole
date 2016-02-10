@@ -96,7 +96,9 @@ void TsScreen_Init() {
 #else
   }
 #endif
+#if DEBUG
   if(tsfd!=-1) printf("Touchscreen device successfully opened. Eventmode=%d.\n",eventmode);
+#endif
 }
 
 static TS_EVENT new_event;
@@ -108,10 +110,8 @@ int TsScreen_read() {
     struct input_event ev2;
     int retval=read(tsfd,&ev2,sizeof(struct input_event))==sizeof(struct
                 input_event)?1:0;
-printf("TS-Read: ");
     if(new_event.pressure!=0xffff) {
-      new_event.pressure=0xffff;
-      printf(" RESET ");
+      new_event.pressure=0xffff;  /* Reset ???*/
     }
     while(retval) {
 #else
@@ -122,15 +122,20 @@ printf("TS-Read: ");
       printf("mouse_event: but=%d dx=%d dy=%d \n",ev2.but,ev2.dx,ev2.dy);
 #endif
 #ifndef NATIVE
+#if DEBUG
       if(ev2.type==EV_SYN) printf(" SYN ");
-      else if(ev2.type==EV_ABS && ev2.code==ABS_X) {
+      else 
+#endif
+      if(ev2.type==EV_ABS && ev2.code==ABS_X) {
         new_event.x=ev2.value;
         new_event.x=(((new_event.x-ts_matrix.xMin)*(vinfo.xres-30))/(ts_matrix.xMax-ts_matrix.xMin))+15;
 //        if(new_event.x<0) new_event.x=0;
 //        else 
 	if (new_event.x>vinfo.xres) new_event.x=vinfo.xres;
         new_event.x=vinfo.xres-new_event.x;
-printf("x=%d ",new_event.x);
+#if DEBUG
+        printf("x=%d ",new_event.x);
+#endif
       } else if (ev2.type==EV_ABS && ev2.code==ABS_Y) {
          new_event.y=ev2.value;
          new_event.y=(((new_event.y-ts_matrix.yMin)*(vinfo.yres-30))/(ts_matrix.yMax-ts_matrix.yMin))+15;
@@ -138,28 +143,38 @@ printf("x=%d ",new_event.x);
 //        else 
 	if (new_event.y>vinfo.yres) new_event.y=vinfo.yres;
         new_event.y=vinfo.yres-new_event.y;
-printf("y=%d ",new_event.y);
+#if DEBUG
+        printf("y=%d ",new_event.y);
+#endif
       } else if(ev2.type==EV_ABS && ev2.code==ABS_PRESSURE) {
         new_event.pressure=ev2.value;
-printf("Pres=%d\n",new_event.pressure);
+#if DEBUG
+        printf("Pres=%d\n",new_event.pressure);
+#endif
         if(new_event.x!=0xffff && new_event.y!=0xffff) break; // -> full dataset.
       } else if(ev2.type==EV_KEY && ev2.code==BTN_TOUCH) {
         if(ev2.value) {
           new_event.pressure=255;
         } else new_event.pressure=0;
- printf("touch=%d\n",ev2.value);
-       
+#if DEBUG
+        printf("touch=%d\n",ev2.value);
+#endif       
 	if(new_event.x!=0xffff && new_event.y!=0xffff) break; // -> full dataset.       
-      } else {
+      } 
+#if DEBUG
+      else {
         printf("unknown input_event: typ=%d code=%d value=%d \n",ev2.type,ev2.code,ev2.value);
       }
+#endif
       retval=read(tsfd,&ev2,sizeof(struct input_event))==sizeof(struct input_event)?1:0;
 #else
       retval=read(tsfd,&ev2,sizeof(MOUSE_EVENT))==sizeof(MOUSE_EVENT)?1:0;
 #endif
     }
+#if DEBUG
     fflush(stdout);
     printf("TSREAD--> %d\n",retval);
+#endif
     return retval;
   } else {    
 #ifndef NATIVE

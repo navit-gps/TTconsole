@@ -8,7 +8,7 @@
  * COPYING for details
  */
 
-#define VERSION "1.13"
+#define VERSION "1.14"
 
 
 /* Button number Definitions corresponding to Object tree */

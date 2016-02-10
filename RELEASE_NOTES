@@ -74,3 +74,9 @@ Release notes for Version 1.13 (Oct 2010)
 * added commandline option --bigkeys
 * Pressing the MENU button will switch between big and small font
 * introduced keyboard repeat slowdown.
+
+Release notes for Version 1.14 (June 2011)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Fixed keyboardrepeat bug (on NC9.xx).
+* keyboard repeat slowdown dropped again.
+

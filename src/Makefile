@@ -15,7 +15,7 @@ LIBDIR=${exec_prefix}/lib
 MANDIR=${prefix}/share/man
 
 
-LIBNO=1.13
+LIBNO=1.14
 
 all: TTconsole bindist dist TTconsole-l utility-bin-$(LIBNO).zip
 
