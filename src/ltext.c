@@ -17,19 +17,24 @@
 extern const unsigned char font[128][35];
 extern void line(int x1,int y1,int x2, int y2);
 
-double ltext(int x, int y, double s, double t, double wk, int pflg, char *tt) 
-{
-  return(0); /* Nur so, da noch nicht debugged */
-   double obxx,bxx=0,msin,mcos;
-   unsigned int a;
-   int i,j,len,len2,fx,fy,charw,center,px,py,pxo,pyo;
-   int xx,yy,ox,oy;
+/* Version with no floatingpoint instructions 
+s in percent, t in percent, wk in degrees, return in pixels*/
+
+int ltext(int x, int y, int s, int t, double wk, int pflg, char *tt)  {
+  int obxx,bxx=0,msin,mcos;
+  unsigned int a;
+  int i,j,len,len2,fx,fy,charw,center,px,py,pxo,pyo;
+  int xx,yy,ox,oy;
    
   len=strlen(tt);
   if(len>0) {
+#if 0
     msin=sin(rad(wk));
     mcos=cos(rad(wk)); 
-
+#else
+    msin=0;
+    mcos=1;
+#endif
     for(i=0;i<len;i++) {
       a=tt[i];
       if(a=='ß') a=16;
@@ -60,10 +65,10 @@ double ltext(int x, int y, double s, double t, double wk, int pflg, char *tt)
           else {
             xx+=center;
             if (j>2) {
-              pxo=ox*s*mcos-oy*t*msin;
-              pyo=oy*t*mcos+ox*s*msin;
-              px=xx*s*mcos-yy*t*msin;
-              py=yy*t*mcos+xx*s*msin;
+              pxo=ox*s/100*mcos-oy*t/100*msin;
+              pyo=oy*t/100*mcos+ox*s/100*msin;
+              px=xx*s/100*mcos-yy*t/100*msin;
+              py=yy*t/100*mcos+xx*s/100*msin;
 	      line(pxo+fx,pyo+fy,px+fx,py+fy); 
             }
           }
@@ -71,12 +76,13 @@ double ltext(int x, int y, double s, double t, double wk, int pflg, char *tt)
         }
       }
       obxx=bxx;
-      bxx=bxx+(charw+30)*s;
+      bxx=bxx+(charw+30)*s/100;
     }
   }
   return(bxx);
 }
-double ltextlen (double s, int pflg, char *tt) {
+
+int ltextlen (int s, int pflg, char *tt) {
   int a,i,len,len2,charw=100,bxx=0;
   
   len=strlen(tt);
@@ -98,5 +104,5 @@ double ltextlen (double s, int pflg, char *tt) {
       bxx+=(charw+30);
     }
   }
-  return(bxx*s);
+  return(bxx*s/100);
 }

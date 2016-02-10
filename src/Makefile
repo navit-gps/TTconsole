@@ -22,12 +22,13 @@ OBJS= TTconsole.o consolefont.o screen.o ltext.o fdata.o terminal.o graphics.o \
 CSRC=$(OBJS:.o=.c)
 HSRC= consolefont.h screen.h terminal.h graphics.h touchscreen.h keyboard.h
 DIST= README INSTALL COPYING AUTHORS RELEASE_NOTES Makefile $(CSRC) $(HSRC) \
-      terminal.bmp TTconsole.cap
-BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap
+      terminal.bmp TTconsole.cap TTconsole-wrapper
+BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
+         TTconsole-wrapper
 
 
 INCS = -I. -I../ttlinux/include
-DIR=TTconsole-1.02
+DIR=TTconsole-1.03
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)
@@ -60,6 +61,7 @@ $(DIR2).zip : $(BINDIST)
 	rsync -a README /tmp/$(DIR2)/
 	rsync -a RELEASE_NOTES /tmp/$(DIR2)/
 	rsync -a TTconsole /tmp/$(DIR2)/TTconsole/
+	rsync -a TTconsole-wrapper /tmp/$(DIR2)/TTconsole/
 	rsync -a terminal.bmp /tmp/$(DIR2)/SDKRegistry/
 	rsync -a TTconsole.cap /tmp/$(DIR2)/SDKRegistry/
 	(cd /tmp ; zip -r $(DIR2).zip $(DIR2))

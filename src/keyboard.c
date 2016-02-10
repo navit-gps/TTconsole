@@ -7,7 +7,7 @@
  * COPYING for details
  */
  
-#define VERSION "1.02"
+#define VERSION "1.03"
  
  
 #if 0

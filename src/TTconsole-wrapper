@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Wrapper script for TTconsole (c) Markus Hoffmann 2008
+# Change these values if you like
+
+#first do some settings like the PWD, HOME and PATH
+
+cd /mnt/sdcard
+
+export PATH=$PATH:/mnt/sdcard/bin
+export HOME=/mnt/sdcard/
+
+# now start the console application
+
+./TTconsole/TTconsole echo $USER

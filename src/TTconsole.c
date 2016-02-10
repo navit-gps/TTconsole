@@ -40,14 +40,11 @@
 
 void io_error(int n, char *s) {
   char buffer[strlen(s)+100];
-  set_color(RED);
-  sprintf(buffer,"IOERROR: errno=%d\n",n);
+  sprintf(buffer,"\033[31mIOERROR: errno=%d\033[m\n",n);
   g_outs(buffer);
-  set_color(YELLOW);
-  FbRender_Flush();
 }
 
-
+struct winsize win={25,80,320,240};
 
 
 
@@ -60,6 +57,7 @@ void io_error(int n, char *s) {
 
 int spawn (char *argv[]) {
   int ret_fd = -1;
+  char slavename[80]="";
 
   /* Find out if the intended programme really exists and
      is accessible. */
@@ -74,7 +72,7 @@ int spawn (char *argv[]) {
 
   /* Create a pseudo terminal and fork a process attached
      to it. */
-  pid_t pid = forkpty (&ret_fd, NULL, NULL, NULL);
+  pid_t pid = forkpty (&ret_fd,slavename, NULL, &win);
   if (pid == 0) {
     /* Inside the child process. */
 
@@ -106,7 +104,10 @@ int spawn (char *argv[]) {
       return -1;
     }
   } else if (pid < 0) {
-    g_outs("ERROR spawning programme");
+    io_error(errno,"forkpty");
+    if(errno==ENOENT) g_outs("There are no available ttys.\n");
+    g_outs("slavename=");g_outs(slavename);
+    g_outs("\nERROR spawning programme\n");
     return -1;
   }
 #ifdef SAVE_STDERR
@@ -121,15 +122,21 @@ void intro() {
 #if DEBUG
   printf("print splash message.\n");
 #endif
-  Fb_BlitText((ScreenWidth/2)-(10*8), 136, BLUE, BLACK, "http://www.opentom.org/TomTom_Console");
+  Fb_BlitText((ScreenWidth/2)-(16*CharWidth), 136, BLUE, BLACK, "http://www.opentom.org/TomTom_Console");
 
-  set_color(MAGENTA);  box(10,10,310,230);
-  set_color(LIGHTBLUE);box(20,20,300,220);
+  set_color(MAGENTA);  box(10,10,ScreenWidth-10,ScreenHeight-10);
+  set_color(LIGHTBLUE);box(20,20,ScreenWidth-20,ScreenHeight-20);
+
+  ltext(0,100,15,25,0,0,"(c) Markus Hoffmann 2008");
   set_color(WHITE);
   set_bcolor(BLACK);
 
-//  ltext(0,100,0.3,0.5,0,0,"(c) Markus Hoffmann 2008");
-
+}
+void usage(){
+  puts("\n Usage:\n ------ \n");
+  printf(" TTconsole [options] [<shell-cmd>] --- excecute shell\n\n");
+  puts("--exec <command>        --- execute shell command and exit TTconsole");
+  puts("-h --help           --- Usage");
 }
 
 
@@ -156,12 +163,23 @@ int main(int argc, char** argv) {
 
   set_color(WHITE);
   set_bcolor(BLACK);
+  Fb_Clear(0,4*CharHeight,BLACK);
 
   printf("first use of g_out.\n");
-  g_outs("\033[7m      Shell-Access on the TomTom V.1.01     \033[m\n          (c) Markus Hoffmann   2007-2008\n");
-  sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\n",
+  g_outs("\033[7m      Shell-Access on the TomTom V.1.03        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,vinfo.xres/CharWidth,vinfo.yres/CharHeight);
   g_outs(buffer);
+
+  /* Setze information fuer terminals */
+
+  win.ws_row=vinfo.yres/CharHeight;
+  win.ws_col=vinfo.xres/CharWidth;
+  win.ws_xpixel=vinfo.xres;
+  win.ws_ypixel=vinfo.yres;
+
+  /* Place keyboard to upper right corner */
+  keyboard_objects[0].ob_x=vinfo.xres-keyboard_objects[0].ob_width;
 
 /* Zuerst stdin und stdout umleiten */
 
@@ -187,7 +205,6 @@ int main(int argc, char** argv) {
   printf("Initialize fd_set terminal_fd=%d.\n",terminal_fd);
 
   FD_ZERO (&active_fd_set);
-  printf("ZERO fd_set.\n");
   FD_SET (tsfd, &active_fd_set); 
   printf("SET fd_set.\n");
   FD_SET (terminal_fd, &active_fd_set); 
@@ -195,6 +212,27 @@ int main(int argc, char** argv) {
 
   objc_draw(objects,BUT_KEYB,BUT_KEYB,0,0);
 
+  /* Now passing the commandline to shell */
+  printf("Processing command line.\n");
+
+  if(argc>1) {
+    int count;
+    for(count=1;count<argc;count++) {    
+      if(strcmp(argv[count],"-h")==0) {
+        usage();
+        DoExit=1;
+      } else if (strcmp(argv[count],"--help")==0) {
+	usage();
+        DoExit=1;
+      } else if (strcmp(argv[count],"--exec")==0) {
+        DoExit=1;
+      } else {
+        write(terminal_fd,argv[count],strlen(argv[count]));
+        write(terminal_fd," ",1);      
+      }
+    }
+    write(terminal_fd,"\n",1);
+  }
   printf("Enter main loop.\n");
 
   while (!DoExit) {
@@ -324,9 +362,7 @@ int main(int argc, char** argv) {
         if(cc) g_out(c);
       } 
     }
-  }
-  form_alert(1,"[0][done.][ OK ]");
-  
+  }  
   FbRender_Close();
   TsScreen_Exit();
   return 0;

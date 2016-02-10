@@ -86,7 +86,7 @@ void gem_init() {
    printf("done.\n");
 }
 
-double ltext(int, int, double, double, double , int, char *);
+int ltext(int, int,int,int,int, int, char *);
 
 int form_alert(int dbut,char *n) {
   return(form_alert2(dbut,n,NULL));
@@ -555,8 +555,10 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
     SetForeground(gem_colors[RED]);
 #if 0
     XSetLineAttributes(display[usewindow], gc[usewindow], 2, 0,0,0);
-    ltext(obx,oby,0.5,0.5,0,0,chr);
-    if(tree[idx].ob_spec==3) ltext(obx+4,oby+12,0.5/6,0.5/2,0,0,"STOP");
+#endif
+    ltext(obx,oby,50,50,0,0,chr);
+    if(tree[idx].ob_spec==3) ltext(obx+4,oby+12,50/6,50/2,0,0,"STOP");
+#if 0
     XSetLineAttributes(display[usewindow], gc[usewindow], 1, 0,0,0);
 #endif
     break;
