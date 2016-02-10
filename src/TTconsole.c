@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
   set_color(WHITE);
   set_bcolor(BLACK);
 
-  g_outs("\033[7m      Shell-Access on the TomTom V.1.05        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
+  g_outs("\033[7m      Shell-Access on the TomTom V.1.06        \033[m\n           (c) Markus Hoffmann   2007-2008      \n");
   sprintf(buffer,"\n\033[32mScreen-Dimensions: w=%d, h=%d, b=%d  -> %dx%d characters.\033[33m\n",
   vinfo.xres,vinfo.yres,vinfo.bits_per_pixel,LineLen,AnzLine);
   g_outs(buffer);
@@ -300,6 +300,22 @@ int main(int argc, char** argv) {
 	        else if(sel==BUT_F2)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OQ",2);}
 	        else if(sel==BUT_F3)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OR",2);}
 	        else if(sel==BUT_F4)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"OS",2);}
+#if 0
+	        else if(sel==BUT_F5)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[15~",4);}
+	        else if(sel==BUT_F6)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[17~",4);}
+	        else if(sel==BUT_F7)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[18~",4);}
+	        else if(sel==BUT_F8)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[19~",4);}
+	        else if(sel==BUT_F9)        {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[20~",4);}
+	        else if(sel==BUT_F10)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[21~",4);}
+	        else if(sel==BUT_F11)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[23~",4);}
+	        else if(sel==BUT_F12)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[24~",4);}
+#endif
+	        else if(sel==BUT_PGUP)      {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[5~",3);}
+	        else if(sel==BUT_PGDOWN)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[6~",3);}
+	        else if(sel==BUT_INSERT)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[2~",3);}
+	        else if(sel==BUT_DELETE)    {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[3~",3);}
+	        else if(sel==BUT_POS1)      {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[H",2);}
+	        else if(sel==BUT_END)       {c=27;write(terminal_fd,&c,1);write(terminal_fd,"[F",2);}
 	        else if(sel==BUT_TAB)       {c=9;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_ESC)       {c=27;write(terminal_fd,&c,1);}
 	        else if(sel==BUT_BLANK)     {c=32;write(terminal_fd,&c,1);}
@@ -350,6 +366,15 @@ int main(int argc, char** argv) {
 		    if(c=='q') c='@';
 		    else if(c=='<') c='|';
 		    else if(c=='+') c='~';
+		    else if(c=='e') c='?';
+		    else if(c=='2') c='²';
+		    else if(c=='3') c='³';
+		    else if(c=='7') c='{';
+		    else if(c=='8') c='[';
+		    else if(c=='9') c=']';
+		    else if(c=='0') c='}';
+		    else if(c=='?') c='\\';
+		    else if(c=='m') c='µ';
 		  }
 		  write(terminal_fd,&c,1);
 		}

@@ -24,3 +24,9 @@ Release notes for Version 1.05 (Jan 2008)
 - Copy/paste works
 - improved terminal emulation
 - removed the Bold/highlight text attribute, since the font was unreadable
+
+Release notes for Version 1.06 (Jan 2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Now the colors are true colors. (There was a bug in colorword interpretation.)
+- Removed unused code from the sources
+- Added full keyboard support. Now also with {[]}µ

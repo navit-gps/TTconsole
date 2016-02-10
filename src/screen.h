@@ -16,12 +16,12 @@
 
   #define BLACK     0x0000
   #define WHITE     0xffff
-  #define RED       0xf000
-  #define GREEN     0x0f00
-  #define BLUE      0x00f0
-  #define YELLOW    0xff00
-  #define MAGENTA   0xf0f0
-  #define LIGHTBLUE 0x0ff0
+  #define RED       0xf800
+  #define GREEN     0x07e0
+  #define BLUE      0x001f
+  #define YELLOW    0xffe0
+  #define MAGENTA   0xf81f
+  #define LIGHTBLUE 0x07ff
   #define GREY      0x7777
   #define LIGHTGREY 0xaaaa
 

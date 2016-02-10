@@ -68,7 +68,7 @@ ARECT sbox;
 
 
 int get_color(int r, int g, int b) {
-  return((((r>>12)&0xf)<<12)|(((g>>12)&0xf)<<8)|(((b>>12)&0xf)<<4));
+  return((((r>>11)&0x1f)<<11)|(((g>>10)&0x3f)<<5)|(((b>>11)&0x1f)));
 }
 void gem_init() {
   int i;
@@ -560,10 +560,8 @@ int draw_object(OBJECT *tree,int idx,int rootx,int rooty) {
     SetForeground(gem_colors[RED]);
 #if 0
     XSetLineAttributes(display[usewindow], gc[usewindow], 2, 0,0,0);
-#endif
     ltext(obx,oby,50,50,0,0,chr);
     if(tree[idx].ob_spec==3) ltext(obx+4,oby+12,50/6,50/2,0,0,"STOP");
-#if 0
     XSetLineAttributes(display[usewindow], gc[usewindow], 1, 0,0,0);
 #endif
     break;

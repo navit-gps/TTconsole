@@ -7,7 +7,7 @@
  * COPYING for details
  */
  
-#define VERSION "1.05"
+#define VERSION "1.06"
  
  
 #if 0
@@ -29,7 +29,7 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
    
   OBJECT keyboard_objects[]={
 /*       next,head,tail,typ,flags,state,spec,x,y,w,h    */
-/* 0*/  {-1, 1,73,G_BOX, NONE, OUTLINED, 0x00021100, 0,0,64*CharWidth,10*CharHeight+2},
+/* 0*/  {-1, 1,79,G_BOX, NONE, OUTLINED, 0x00021100, 0,0,64*CharWidth,10*CharHeight+2},
 /* 1*/  { 2,-1,-1,G_BUTTON, SELECTABLE|DEFAULT|EXIT,NORMAL ,(LONG)"Keyb", 58*CharWidth,0*CharHeight,5*CharWidth,2*CharHeight},
 /* 2*/  { 3,-1,-1,G_BUTTON, SELECTABLE|EXIT,      NORMAL, (LONG)"QUIT", 58*CharWidth,3*CharHeight,5*CharWidth,2*CharHeight},
 /* 3*/  { 4,-1,-1,G_BUTTON, SELECTABLE|EXIT,      NORMAL, (LONG)"clear",58*CharWidth,6*CharHeight,5*CharWidth,1*CharHeight},
@@ -58,7 +58,7 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
 /*26*/  {27,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"i",    26*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
 /*27*/  {28,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"o",    29*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
 /*28*/  {29,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"p",    32*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
-/*29*/  {30,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"u",    35*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
+/*29*/  {30,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"\\",    35*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
 /*30*/  {31,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"+",    38*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
 /*31*/  {32,-1,-1,G_BUTTON, SELECTABLE,           NORMAL, (LONG)"Caps",  1*CharWidth,4*CharHeight,5*CharWidth,2*CharHeight},
 /*32*/  {33,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"a",     6*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
@@ -70,10 +70,10 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
 /*38*/  {39,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"j",    24*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
 /*39*/  {40,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"k",    27*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
 /*40*/  {41,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"l",    30*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
-/*41*/  {42,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"o",    33*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
-/*42*/  {43,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"a",    36*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
+/*41*/  {42,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"[",    33*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
+/*42*/  {43,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"]",    36*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
 /*43*/  {44,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"#",    39*CharWidth,4*CharHeight,3*CharWidth,2*CharHeight},
-/*44*/  {45,-1,-1,G_BUTTON, SELECTABLE|EXIT,      NORMAL, (LONG)"Ret",  43*CharWidth,2*CharHeight,3*CharWidth,4*CharHeight},
+/*44*/  {45,-1,-1,G_BUTTON, SELECTABLE|EXIT,      NORMAL, (LONG)"Ret",  42*CharWidth,2*CharHeight,4*CharWidth,4*CharHeight},
 /*45*/  {46,-1,-1,G_BUTTON, SELECTABLE,           NORMAL, (LONG)"Sh",    1*CharWidth,6*CharHeight,4*CharWidth,2*CharHeight},
 /*46*/  {47,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"<",     5*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
 /*47*/  {48,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"y",     8*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
@@ -86,23 +86,29 @@ char keyb5[]="[Ctr][ ][ ][              ][  ][  ][ ][Ctrl] [<][v][>]";
 /*54*/  {55,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)",",    29*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
 /*55*/  {56,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)".",    32*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
 /*56*/  {57,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"-",    35*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
-/*57*/  {58,-1,-1,G_BUTTON, SELECTABLE      ,NORMAL, (LONG)"Shift",39*CharWidth,6*CharHeight,7*CharWidth,2*CharHeight},
+/*57*/  {58,-1,-1,G_BUTTON, SELECTABLE      ,NORMAL, (LONG)"Shift",38*CharWidth,6*CharHeight,8*CharWidth,2*CharHeight},
 /*58*/  {59,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"Ctl",   1*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
 /*59*/  {60,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"ESC",   5*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
 /*60*/  {61,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"Alt",   9*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
-/*61*/  {62,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)" ",    13*CharWidth,8*CharHeight,14*CharWidth,2*CharHeight},
-/*62*/  {63,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"AltG", 27*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
-/*63*/  {64,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"copy",  31*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
-/*64*/  {65,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"past",  35*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
-/*65*/  {66,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"Ctl",  39*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
+/*61*/  {62,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"(c) 2008 MH",    13*CharWidth,8*CharHeight,14*CharWidth,2*CharHeight},
+/*62*/  {63,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"AltG", 27*CharWidth,8*CharHeight,5*CharWidth,2*CharHeight},
+/*63*/  {64,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"paste",32*CharWidth,8*CharHeight,5*CharWidth,2*CharHeight},
+/*64*/  {65,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"MENU", 37*CharWidth,8*CharHeight,5*CharWidth,2*CharHeight},
+/*65*/  {66,-1,-1,G_BUTTON, SELECTABLE,      NORMAL, (LONG)"Ctl",  42*CharWidth,8*CharHeight,4*CharWidth,2*CharHeight},
 /*66*/  {67,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"<",    47*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},
 /*67*/  {68,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"v",    50*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},
 /*68*/  {69,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)">",    53*CharWidth,8*CharHeight,3*CharWidth,2*CharHeight},
 /*69*/  {70,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"^",    50*CharWidth,6*CharHeight,3*CharWidth,2*CharHeight},
 /*70*/  {71,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"hide", 58*CharWidth,8*CharHeight,5*CharWidth,1*CharHeight},
-/*71*/  {72,-1,-1,G_STRING, NONE,            NORMAL, (LONG)"TTconsole", 47*CharWidth,1*CharHeight,10*CharWidth,2*CharHeight},
-/*72*/  {73,-1,-1,G_STRING, NONE,            NORMAL, (LONG)VERSION, 49*CharWidth,2*CharHeight,10*CharWidth,2*CharHeight},
-/*73*/  { 0,-1,-1,G_STRING, NONE|LASTOB,     NORMAL, (LONG)"(c)2008 MH", 47*CharWidth,4*CharHeight,10*CharWidth,2*CharHeight}
+/*71*/  {72,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"I",    47*CharWidth,0*CharHeight,3*CharWidth,2*CharHeight},
+/*72*/  {73,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"H",    50*CharWidth,0*CharHeight,3*CharWidth,2*CharHeight},
+/*73*/  {74,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"^",    53*CharWidth,0*CharHeight,3*CharWidth,2*CharHeight},
+/*74*/  {75,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"d",    47*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
+/*75*/  {76,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"E",    50*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
+/*76*/  {77,-1,-1,G_BUTTON, SELECTABLE|EXIT, NORMAL, (LONG)"v",    53*CharWidth,2*CharHeight,3*CharWidth,2*CharHeight},
+/*77*/  {78,-1,-1,G_STRING, NONE,            NORMAL, (LONG)"TTconsole", 47*CharWidth,4*CharHeight+4,10*CharWidth,2*CharHeight},
+/*78*/  {79,-1,-1,G_STRING, NONE,            NORMAL, (LONG)VERSION, 58*CharWidth,9*CharHeight,5*CharWidth,1*CharHeight},
+/*79*/  { 0,-1,-1,G_STRING, NONE|LASTOB,     NORMAL, (LONG)"TTconsole", 47*CharWidth,4*CharHeight+4,10*CharWidth,2*CharHeight}
   };
   int keyboard_objccount=sizeof(keyboard_objects)/sizeof(OBJECT);
 

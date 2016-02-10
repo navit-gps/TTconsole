@@ -16,7 +16,7 @@ CC = arm-linux-gcc
 DEBUG_DEFINES = -O3
 STRIP = arm-linux-strip
 
-OBJS= TTconsole.o consolefont.o screen.o ltext.o fdata.o terminal.o graphics.o \
+OBJS= TTconsole.o consolefont.o screen.o terminal.o graphics.o \
       touchscreen.o keyboard.o
 
 CSRC=$(OBJS:.o=.c)
@@ -27,8 +27,8 @@ BINDIST= README RELEASE_NOTES TTconsole terminal.bmp TTconsole.cap \
          TTconsole-wrapper
 
 
-INCS = -I. -I../ttlinux/include
-DIR=TTconsole-1.05
+INCS = -I. -I$(HOME)/TomTom/ttlinux/include
+DIR=TTconsole-1.06
 DIR2=$(DIR)-bin
 
 DISTOBJS=$(OBJS)
@@ -114,7 +114,7 @@ TTconsole.o TTconsole.ln: /usr/include/pty.h /usr/include/sys/ioctl.h
 TTconsole.o TTconsole.ln: /usr/include/bits/ioctls.h /usr/include/asm/ioctls.h
 TTconsole.o TTconsole.ln: /usr/include/asm/ioctl.h /usr/include/bits/ioctl-types.h
 TTconsole.o TTconsole.ln: /usr/include/sys/ttydefaults.h screen.h consolefont.h terminal.h
-TTconsole.o TTconsole.ln: touchscreen.h graphics.h
+TTconsole.o TTconsole.ln: touchscreen.h graphics.h keyboard.h
 consolefont.o consolefont.ln: /usr/include/stdlib.h /usr/include/features.h
 consolefont.o consolefont.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 consolefont.o consolefont.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
@@ -153,11 +153,6 @@ screen.o screen.ln: /usr/include/bits/time.h /usr/include/sys/select.h
 screen.o screen.ln: /usr/include/bits/select.h /usr/include/sys/mman.h
 screen.o screen.ln: /usr/include/bits/mman.h /usr/include/linux/fb.h
 screen.o screen.ln: /usr/include/asm/types.h /usr/include/linux/ioctl.h screen.h
-ltext.o ltext.ln: /usr/include/math.h /usr/include/features.h /usr/include/sys/cdefs.h
-ltext.o ltext.ln: /usr/include/gnu/stubs.h /usr/include/bits/huge_val.h
-ltext.o ltext.ln: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-ltext.o ltext.ln: /usr/include/string.h
-ltext.o ltext.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
 terminal.o terminal.ln: /usr/include/stdlib.h /usr/include/features.h
 terminal.o terminal.ln: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 terminal.o terminal.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/stddef.h
@@ -199,3 +194,4 @@ touchscreen.o touchscreen.ln: /usr/lib/gcc-lib/i586-suse-linux/3.3.5/include/std
 touchscreen.o touchscreen.ln: /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h
 touchscreen.o touchscreen.ln: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 touchscreen.o touchscreen.ln: /usr/include/sys/types.h /usr/include/time.h
+keyboard.o keyboard.ln: consolefont.h graphics.h keyboard.h

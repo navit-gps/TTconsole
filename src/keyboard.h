@@ -29,12 +29,19 @@
 #define BUT_CTRL1 58
 #define BUT_CTRL2 65
 #define BUT_ALTG 62
-#define BUT_COPY 63
-#define BUT_PASTE 64
+#define BUT_PASTE 63
 #define BUT_CUR_UP 69
 #define BUT_CUR_DOWN 67
 #define BUT_CUR_RIGHT 68
 #define BUT_CUR_LEFT 66
+
+#define BUT_INSERT 71
+#define BUT_DELETE 74
+#define BUT_POS1   72
+#define BUT_END    75
+#define BUT_PGUP   73
+#define BUT_PGDOWN 76
+
 #define BUT_F1 100
 #define BUT_F2 100
 #define BUT_F3 100

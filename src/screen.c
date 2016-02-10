@@ -272,10 +272,9 @@ void Fb_inverse(int x, int y,int w,int h){
 }
 unsigned short int mean_color(unsigned short int a, unsigned short int b) {
   return(
-  (((((a>>12)&0xf)+((b>>12)&0xf))>>2)<<12)|
-  (((((a>>8)&0xf)+((b>>8)&0xf))>>2)<<8)|
-  (((((a>>4)&0xf)+((b>>4)&0xf))>>2)<<4)|
-  (((a&0xf)+(b&0xf))>>2));
+  (((((a>>11)&0x1f)+((b>>11)&0x1f))>>2)<<11)|
+  (((((a>>5)&0x3f)+((b>>5)&0x3f))>>2)<<5)|
+  (((a&0x1f)+(b&0x1f))>>2));
 }
 
 void copyarea(int x,int y,int w, int h, int tx,int ty) {
