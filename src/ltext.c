@@ -1,4 +1,4 @@
-/* ltext.c (c) Markus Hoffmann
+/* ltext.c (c) Markus Hoffmann  (c) 1995
    Fontdaten einlesen fuer Linienfont char font[zeile][spalte] */
 
 /* This file is part of X11BASIC, the basic interpreter for Unix/X

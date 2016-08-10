@@ -1,7 +1,12 @@
-/* These functions are based on the 
-  Hello World Example
-  Copyright (C) 2004 TomTom BV. All Rights Reserved.  */
+/* consolefont.c                            (c) Markus Hoffmann  2007-2008
+*/
 
+/* This file is part of TTconsole, the TomTom Console interface
+ * ======================================================================
+ * TTconsole is free software and comes with NO WARRANTY - read the file
+ * COPYING for details
+ */
+ 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
